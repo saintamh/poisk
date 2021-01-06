@@ -12,8 +12,8 @@ HTML_DOC = ET.HTML(
     '''
     <html>
       <body>
-        <p>Au large, <b>forban</b>!</p>
-        <p>Au large, flibustier!</p>
+        <p id="first">Au large, <b>forban</b>!</p>
+        <p class="second">Au large, flibustier!</p>
       </body>
     </html>
     '''
@@ -41,6 +41,8 @@ HTML_DOC = ET.HTML(
         ('body b', HTML_DOC, '<b>forban</b>!'),
         ('body > b', HTML_DOC, Mismatch),
         ('p', HTML_DOC, MoreThanOne),
+        ('p#first b', HTML_DOC, '<b>forban</b>!'),
+        ('p.second', HTML_DOC, '<p class="second">Au large, flibustier!</p>'),
 
         (bool, ['', None, False, 'boo'], 'boo'),
         (bool, ['', None, False], Mismatch),
@@ -57,5 +59,5 @@ def test_one(test, collection, expected):
             raise
     else:
         if isinstance(result, ET._Element):  # pylint: disable=protected-access
-            result = ET.tostring(result, encoding=str)
+            result = ET.tostring(result, encoding=str).strip()
         assert result == expected
