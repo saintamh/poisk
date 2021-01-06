@@ -21,35 +21,35 @@ HTML_DOC = ET.HTML(
 
 
 @pytest.mark.parametrize(
-    'test, collection, expected',
+    'collection, test, expected',
     [
-        (r'br.c', 'abracadabra', 'brac'),
-        (r'b.a', 'abracadabra', MoreThanOne),
-        (r'brr', 'abracadabra', Mismatch),
+        ('abracadabra', r'br.c', 'brac'),
+        ('abracadabra', r'b.a', MoreThanOne),
+        ('abracadabra', r'brr', Mismatch),
 
-        ('body/p/b/text()', HTML_DOC, 'forban'),
-        ('./body/p/b/text()', HTML_DOC, 'forban'),
-        ('/body/p/b/text()', HTML_DOC, 'forban'),
-        ('//body/p/b/text()', HTML_DOC, 'forban'),
-        ('b/text()', HTML_DOC, 'forban'),
-        ('//b/text()', HTML_DOC, 'forban'),
-        ('i/text()', HTML_DOC, Mismatch),
-        ('p/text()', HTML_DOC, MoreThanOne),
+        (HTML_DOC, 'body/p/b/text()', 'forban'),
+        (HTML_DOC, './body/p/b/text()', 'forban'),
+        (HTML_DOC, '/body/p/b/text()', 'forban'),
+        (HTML_DOC, '//body/p/b/text()', 'forban'),
+        (HTML_DOC, 'b/text()', 'forban'),
+        (HTML_DOC, '//b/text()', 'forban'),
+        (HTML_DOC, 'i/text()', Mismatch),
+        (HTML_DOC, 'p/text()', MoreThanOne),
 
-        ('p b', HTML_DOC, '<b>forban</b>!'),
-        ('p > b', HTML_DOC, '<b>forban</b>!'),
-        ('body b', HTML_DOC, '<b>forban</b>!'),
-        ('body > b', HTML_DOC, Mismatch),
-        ('p', HTML_DOC, MoreThanOne),
-        ('p#first b', HTML_DOC, '<b>forban</b>!'),
-        ('p.second', HTML_DOC, '<p class="second">Au large, flibustier!</p>'),
+        (HTML_DOC, 'p b', '<b>forban</b>!'),
+        (HTML_DOC, 'p > b', '<b>forban</b>!'),
+        (HTML_DOC, 'body b', '<b>forban</b>!'),
+        (HTML_DOC, 'body > b', Mismatch),
+        (HTML_DOC, 'p', MoreThanOne),
+        (HTML_DOC, 'p#first b', '<b>forban</b>!'),
+        (HTML_DOC, 'p.second', '<p class="second">Au large, flibustier!</p>'),
 
-        (bool, ['', None, False, 'boo'], 'boo'),
-        (bool, ['', None, False], Mismatch),
-        (bool, ['', None, False, 'boo', 'ah!'], MoreThanOne),
+        (['', None, False, 'boo'], bool, 'boo'),
+        (['', None, False], bool, Mismatch),
+        (['', None, False, 'boo', 'ah!'], bool, MoreThanOne),
     ]
 )
-def test_one(test, collection, expected):
+def test_one(collection, test, expected):
     try:
         result = one(test, collection)
     except Exception as ex:  # anything at all, pylint: disable=broad-except
