@@ -45,8 +45,8 @@ HTML_DOC = ET.HTML(
         (HTML_DOC, 'p.second', '<p class="second">Au large, flibustier!</p>'),
 
         (['', None, False, 'boo'], bool, 'boo'),
-        (['', None, False], bool, Mismatch),
-        (['', None, False, 'boo', 'ah!'], bool, MoreThanOne),
+        (['', None, False, 'boo'], lambda v: v == 'boom', Mismatch),
+        (['', None, False, 'boo'], lambda v: not v, MoreThanOne),
     ]
 )
 def test_one(collection, test, expected):
