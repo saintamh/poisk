@@ -43,6 +43,8 @@ XML_DOC = ET.XML(
 
         # regex matching
         ('abracadabra', r'br.c', {}, 'brac'),
+        ('abracadabra', r'br(.)c', {}, 'a'),
+        ('abracadabra', r'a(.+)a(.+)a(.+)a(.+)a', {}, ('br', 'c', 'd', 'br')),
         ('abracadabra', r'b.a', {}, MoreThanOne),
         ('abracadabra', r'b.a', {'allow_many': True}, 'bra'),
         ('abracadabra', r'brr', {}, Mismatch),
@@ -87,6 +89,7 @@ XML_DOC = ET.XML(
         (['', None, False, 'boo'], lambda v: v == 'boom', {'allow_mismatch': True}, None),
         (['', None, False, 'boo'], lambda v: not v, {}, MoreThanOne),
         (['', None, False, 'boo'], lambda v: not v, {'allow_many': True}, ''),
+
     ]
 )
 def test_one(collection, test, options, expected):
