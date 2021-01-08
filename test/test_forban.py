@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# standards
+import re
+
 # 3rd parties
 import lxml.etree as ET
 import pytest
@@ -20,15 +23,36 @@ HTML_DOC = ET.HTML(
 )
 
 
+XML_DOC = ET.XML(
+    '''
+    <doc
+      xmlns:a="http://xml.com/ns1"
+      xmlns:b="http://xml.com/ns2"
+    >
+      <a:foo>
+         <b:bar>Text</b:bar>
+      </a:foo>
+    </doc>
+    '''
+)
+
+
 @pytest.mark.parametrize(
     'collection, test, options, expected',
     [
+
+        # regex matching
         ('abracadabra', r'br.c', {}, 'brac'),
         ('abracadabra', r'b.a', {}, MoreThanOne),
         ('abracadabra', r'b.a', {'allow_many': True}, 'bra'),
         ('abracadabra', r'brr', {}, Mismatch),
         ('abracadabra', r'brr', {'allow_mismatch': True}, None),
+        ('abracadabra', r'BR.C', {}, Mismatch),
 
+        # regex flags
+        ('abracadabra', r'BR.C', {'flags': re.I}, 'brac'),
+
+        # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),
         (HTML_DOC, './body/p/b/text()', {}, 'forban'),
         (HTML_DOC, '/body/p/b/text()', {}, 'forban'),
@@ -40,6 +64,13 @@ HTML_DOC = ET.HTML(
         (HTML_DOC, 'p/text()', {}, MoreThanOne),
         (HTML_DOC, 'p/text()', {'allow_many': True}, 'Au large, '),
 
+        # Element.xpath() kwargs, used for namespaces, or passing arbitrary variables, see https://lxml.de/xpathxslt.html
+        (HTML_DOC, '//p[@id = $my_var]/b', {'my_var': 'first'}, '<b>forban</b>!'),
+        (XML_DOC, 'foo/bar/text()', {}, Mismatch),
+        (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://wrong.com/blah', 'y': 'http://other.com/boo'}}, Mismatch),
+        (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://xml.com/ns1', 'y': 'http://xml.com/ns2'}}, 'Text'),
+
+        # css matching
         (HTML_DOC, 'p b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'p > b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'body b', {}, '<b>forban</b>!'),
@@ -50,6 +81,7 @@ HTML_DOC = ET.HTML(
         (HTML_DOC, 'p#first b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'p.second', {}, '<p class="second">Au large, flibustier!</p>'),
 
+        # arbitrary list filtering
         (['', None, False, 'boo'], bool, {}, 'boo'),
         (['', None, False, 'boo'], lambda v: v == 'boom', {}, Mismatch),
         (['', None, False, 'boo'], lambda v: v == 'boom', {'allow_mismatch': True}, None),

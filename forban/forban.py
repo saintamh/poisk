@@ -26,17 +26,17 @@ class MoreThanOne(ValueError):
     pass
 
 
-def many(test, collection, allow_mismatch=False):
+def many(test, collection, allow_mismatch=False, **kwargs):
     if isinstance(collection, str):
-        results = re.findall(test, collection)
+        results = re.findall(test, collection, **kwargs)
     elif ET is not None and isinstance(collection, ET._Element):  # pylint: disable=protected-access
         if '/' in test:
             test = re.sub(r'^/*', './/', test)
         else:
             test = css_to_xpath(test)
-        results = collection.xpath(test)
+        results = collection.xpath(test, **kwargs)
     elif callable(test):
-        results = list(filter(test, collection))
+        results = list(filter(test, collection, **kwargs))
     else:
         raise TypeError(f"Don't know how to select from {type(collection)}")
     if not results and not allow_mismatch:
@@ -44,8 +44,8 @@ def many(test, collection, allow_mismatch=False):
     return results
 
 
-def one(test, collection, allow_mismatch=False, allow_many=False):
-    results = many(test, collection, allow_mismatch=allow_mismatch)
+def one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
+    results = many(test, collection, allow_mismatch=allow_mismatch, **kwargs)
     if not results:
         assert allow_mismatch
         return None
