@@ -15,7 +15,8 @@ try:
     from cssselect import HTMLTranslator
     css_to_xpath = HTMLTranslator().css_to_xpath
 except ImportError:
-    pass
+    def css_to_xpath(*args, **kwargs):
+        raise NotImplementedError('You must install cssselect in order to use CSS selectors')
 
 
 class Mismatch(ValueError):
