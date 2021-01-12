@@ -8,7 +8,7 @@ import lxml.etree as ET
 import pytest
 
 # forban
-from forban import ManyFound, NotFound, find_one
+from forban import ManyFound, NotFound, find_many, find_one
 
 
 HTML_DOC = ET.HTML(
@@ -71,8 +71,10 @@ class MyTree:
         ('abracadabra', r'brr', {'allow_mismatch': True}, None),
         ('abracadabra', r'BR.C', {}, NotFound),
 
-        # regex flags
-        ('abracadabra', r'BR.C', {'flags': re.I}, 'brac'),
+        # regex matching kwags
+        ('abracadabra', r'B R . C', {}, NotFound),
+        ('abracadabra', r'B R . C', {'flags': re.I|re.X}, 'brac'),
+        ('abracadabra', 'a', {'made_up_kwarg': True}, TypeError),
 
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),
@@ -110,9 +112,12 @@ class MyTree:
         (['', None, False, 'boo'], lambda v: not v, {}, ManyFound),
         (['', None, False, 'boo'], lambda v: not v, {'allow_many': True}, ''),
 
+        # list filtering takes no kwargs
+        ([1, 2, 3], lambda v: v, {'anything_at_all': True}, TypeError),
+
         # unsupported types
         (MyClass(), 'needle', {}, TypeError),
-        (MyClass(), 'needle', {'allow_many': True}, TypeError),
+        (MyClass(), 'needle', {'allow_mismatch': True}, TypeError),
 
         # subclassing a string works
         (MyString('hello'), r'.+(?=.)', {}, 'hell'),
@@ -135,3 +140,69 @@ def test_find_one(haystack, needle, options, expected):
         if isinstance(result, ET._Element):  # pylint: disable=protected-access
             result = ET.tostring(result, encoding=str).strip()
         assert result == expected
+
+
+@pytest.mark.parametrize(
+    'haystack, needle, options, expected',
+    [
+
+        # regex matching
+        ('abracadabra', r'.a.', {}, ['rac', 'dab']),
+        ('abracadabra', r'(.a).', {}, ['ra', 'da']),
+        ('abracadabra', r'(.)a(.)', {}, [('r', 'c'), ('d', 'b')]),
+        ('abracadabra', r'z', {}, NotFound),
+        ('abracadabra', r'z', {'allow_mismatch': True}, []),
+
+        # regex flags
+        ('abracadabra', r'. A .', {}, NotFound),
+        ('abracadabra', r'. A .', {'flags': re.I|re.X}, ['rac', 'dab']),
+        ('abracadabra', 'a', {'made_up_kwarg': True}, TypeError),
+
+        # xpath matching
+        (HTML_DOC, 'body/p/text()', {}, ['Au large, ', '!', 'Au large, flibustier!']),
+        (HTML_DOC, 'body/div/text()', {}, NotFound),
+        (HTML_DOC, 'body/div/text()', {'allow_mismatch': True}, []),
+
+        # css matching
+        (HTML_DOC, 'p', {}, ['<p id="first">Au large, <b>forban</b>!</p>', '<p class="second">Au large, flibustier!</p>']),
+        (HTML_DOC, 'div', {}, NotFound),
+        (HTML_DOC, 'div', {'allow_mismatch': True}, []),
+
+        # arbitrary list filtering
+        (list(range(10)), lambda i: i % 3 == 0, {}, [0, 3, 6, 9]),
+        (list(range(10)), lambda i: i > 12, {}, NotFound),
+        (list(range(10)), lambda i: i > 12, {'allow_mismatch': True}, []),
+
+        # list filtering takes no kwargs
+        ([1, 2, 3], lambda v: v, {'anything_at_all': True}, TypeError),
+
+        # unsupported types
+        (MyClass(), 'needle', {}, TypeError),
+        (MyClass(), 'needle', {'allow_many': True}, TypeError),
+
+        # subclassing a string works
+        (MyString('hello'), r'[aeiou]', {}, ['e', 'o']),
+
+        # anything with an 'xpath' method works
+        (MyTree(HTML_DOC), 'body/p/b/text()', {}, ['forban']),
+        (MyTree(HTML_DOC), 'p b', {}, ['<b>forban</b>!']),
+
+    ]
+)
+def test_find_many(haystack, needle, options, expected):
+    try:
+        results = find_many(needle, haystack, **options)
+    except Exception as ex:  # anything at all, pylint: disable=broad-except
+        if isinstance(expected, type) and issubclass(expected, Exception):
+            assert isinstance(ex, expected)
+        else:
+            raise
+    else:
+        assert isinstance(results, list), results
+        results = [
+            ET.tostring(element, encoding=str).strip()
+            if isinstance(element, ET._Element)  # pylint: disable=protected-access
+            else element
+            for element in results
+        ]
+        assert results == expected
