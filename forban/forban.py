@@ -10,11 +10,19 @@ from cssselect import HTMLTranslator
 css_to_xpath = HTMLTranslator().css_to_xpath
 
 
-class NotFound(ValueError):
+class ForbanException(ValueError):
+
+    def __init__(self, needle, haystack):
+        super().__init__(repr(needle))
+        self.needle = needle
+        self.haystack = haystack
+
+
+class NotFound(ForbanException):
     pass
 
 
-class ManyFound(ValueError):
+class ManyFound(ForbanException):
     pass
 
 
@@ -53,7 +61,7 @@ def find_many(needle, haystack, allow_mismatch=False, **kwargs):
         raise TypeError(f"Don't know how to select from {type(haystack)}")
 
     if not results and not allow_mismatch:
-        raise NotFound(needle)
+        raise NotFound(needle, haystack)
     return results
 
 
@@ -74,5 +82,5 @@ def find_one(needle, haystack, allow_mismatch=False, allow_many=False, **kwargs)
         assert allow_mismatch
         return None
     if len(results) > 1 and not allow_many:
-        raise ManyFound(needle)
+        raise ManyFound(needle, haystack)
     return results[0]
