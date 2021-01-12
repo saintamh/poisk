@@ -18,7 +18,7 @@ class MoreThanOne(ValueError):
     pass
 
 
-def many(test, collection, allow_mismatch=False, **kwargs):
+def find_many(test, collection, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `test` within `collection`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
@@ -55,7 +55,7 @@ def many(test, collection, allow_mismatch=False, **kwargs):
     return results
 
 
-def one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
+def find_one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
     """
     Finds and returns the only match of `test` within `collection`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
@@ -67,7 +67,7 @@ def one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
 
     Behaviour and remaining `**kwargs` depend on the type of the collection, see the docstring for `many` for details.
     """
-    results = many(test, collection, allow_mismatch=allow_mismatch, **kwargs)
+    results = find_many(test, collection, allow_mismatch=allow_mismatch, **kwargs)
     if not results:
         assert allow_mismatch
         return None

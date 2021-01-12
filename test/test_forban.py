@@ -8,7 +8,7 @@ import lxml.etree as ET
 import pytest
 
 # forban
-from forban import MoreThanOne, NotFound, one
+from forban import MoreThanOne, NotFound, find_one
 
 
 HTML_DOC = ET.HTML(
@@ -92,9 +92,9 @@ XML_DOC = ET.XML(
 
     ]
 )
-def test_one(collection, test, options, expected):
+def test_find_one(collection, test, options, expected):
     try:
-        result = one(test, collection, **options)
+        result = find_one(test, collection, **options)
     except Exception as ex:  # anything at all, pylint: disable=broad-except
         if isinstance(expected, type) and issubclass(expected, Exception):
             assert isinstance(ex, expected)

@@ -1,3 +1,3 @@
 #!/usr/bin/env python3
 
-from .forban import MoreThanOne, NotFound, many, one
+from .forban import MoreThanOne, NotFound, find_many, find_one
