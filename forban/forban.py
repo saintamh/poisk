@@ -14,7 +14,7 @@ class NotFound(ValueError):
     pass
 
 
-class MoreThanOne(ValueError):
+class ManyFound(ValueError):
     pass
 
 
@@ -59,7 +59,7 @@ def find_one(test, collection, allow_mismatch=False, allow_many=False, **kwargs)
     """
     Finds and returns the only match of `test` within `collection`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
-    and `allow_many` is `False` (the default), a `MoreThanOne` exception is raised; if `allow_many` is True, the first match is
+    and `allow_many` is `False` (the default), a `ManyFound` exception is raised; if `allow_many` is True, the first match is
     returned.
 
     In other words this function ensures that only a single value exists that matches the given selector, unless `allow_mismatch`
@@ -72,5 +72,5 @@ def find_one(test, collection, allow_mismatch=False, allow_many=False, **kwargs)
         assert allow_mismatch
         return None
     if len(results) > 1 and not allow_many:
-        raise MoreThanOne(test)
+        raise ManyFound(test)
     return results[0]

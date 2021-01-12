@@ -8,7 +8,7 @@ import lxml.etree as ET
 import pytest
 
 # forban
-from forban import MoreThanOne, NotFound, find_one
+from forban import ManyFound, NotFound, find_one
 
 
 HTML_DOC = ET.HTML(
@@ -45,7 +45,7 @@ XML_DOC = ET.XML(
         ('abracadabra', r'br.c', {}, 'brac'),
         ('abracadabra', r'br(.)c', {}, 'a'),
         ('abracadabra', r'a(.+)a(.+)a(.+)a(.+)a', {}, ('br', 'c', 'd', 'br')),
-        ('abracadabra', r'b.a', {}, MoreThanOne),
+        ('abracadabra', r'b.a', {}, ManyFound),
         ('abracadabra', r'b.a', {'allow_many': True}, 'bra'),
         ('abracadabra', r'brr', {}, NotFound),
         ('abracadabra', r'brr', {'allow_mismatch': True}, None),
@@ -63,7 +63,7 @@ XML_DOC = ET.XML(
         (HTML_DOC, '//b/text()', {}, 'forban'),
         (HTML_DOC, 'i/text()', {}, NotFound),
         (HTML_DOC, 'i/text()', {'allow_mismatch': True}, None),
-        (HTML_DOC, 'p/text()', {}, MoreThanOne),
+        (HTML_DOC, 'p/text()', {}, ManyFound),
         (HTML_DOC, 'p/text()', {'allow_many': True}, 'Au large, '),
 
         # Element.xpath() kwargs, used for namespaces, or passing arbitrary variables, see https://lxml.de/xpathxslt.html
@@ -78,7 +78,7 @@ XML_DOC = ET.XML(
         (HTML_DOC, 'body b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'body > b', {}, NotFound),
         (HTML_DOC, 'body > b', {'allow_mismatch': True}, None),
-        (HTML_DOC, 'p', {}, MoreThanOne),
+        (HTML_DOC, 'p', {}, ManyFound),
         (HTML_DOC, 'p', {'allow_many': True}, '<p id="first">Au large, <b>forban</b>!</p>'),
         (HTML_DOC, 'p#first b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'p.second', {}, '<p class="second">Au large, flibustier!</p>'),
@@ -87,7 +87,7 @@ XML_DOC = ET.XML(
         (['', None, False, 'boo'], bool, {}, 'boo'),
         (['', None, False, 'boo'], lambda v: v == 'boom', {}, NotFound),
         (['', None, False, 'boo'], lambda v: v == 'boom', {'allow_mismatch': True}, None),
-        (['', None, False, 'boo'], lambda v: not v, {}, MoreThanOne),
+        (['', None, False, 'boo'], lambda v: not v, {}, ManyFound),
         (['', None, False, 'boo'], lambda v: not v, {'allow_many': True}, ''),
 
     ]
