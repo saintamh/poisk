@@ -37,6 +37,26 @@ XML_DOC = ET.XML(
 )
 
 
+class MyClass:
+    # cool off, pylint: disable=too-few-public-methods
+    pass
+
+
+class MyString(str):
+    # it's just a dummy, pylint: disable=too-few-public-methods
+    pass
+
+
+class MyTree:
+    # thanks but it's not needed here, pylint: disable=too-few-public-methods
+
+    def __init__(self, element):
+        self.element = element
+
+    def xpath(self, *args, **kwargs):
+        return self.element.xpath(*args, **kwargs)
+
+
 @pytest.mark.parametrize(
     'haystack, needle, options, expected',
     [
@@ -89,6 +109,17 @@ XML_DOC = ET.XML(
         (['', None, False, 'boo'], lambda v: v == 'boom', {'allow_mismatch': True}, None),
         (['', None, False, 'boo'], lambda v: not v, {}, ManyFound),
         (['', None, False, 'boo'], lambda v: not v, {'allow_many': True}, ''),
+
+        # unsupported types
+        (MyClass(), 'needle', {}, TypeError),
+        (MyClass(), 'needle', {'allow_many': True}, TypeError),
+
+        # subclassing a string works
+        (MyString('hello'), r'.+(?=.)', {}, 'hell'),
+
+        # anything with an 'xpath' method works
+        (MyTree(HTML_DOC), 'body/p/b/text()', {}, 'forban'),
+        (MyTree(HTML_DOC), 'p b', {}, '<b>forban</b>!'),
 
     ]
 )
