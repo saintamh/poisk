@@ -38,7 +38,7 @@ XML_DOC = ET.XML(
 
 
 @pytest.mark.parametrize(
-    'collection, test, options, expected',
+    'haystack, needle, options, expected',
     [
 
         # regex matching
@@ -92,9 +92,9 @@ XML_DOC = ET.XML(
 
     ]
 )
-def test_find_one(collection, test, options, expected):
+def test_find_one(haystack, needle, options, expected):
     try:
-        result = find_one(test, collection, **options)
+        result = find_one(needle, haystack, **options)
     except Exception as ex:  # anything at all, pylint: disable=broad-except
         if isinstance(expected, type) and issubclass(expected, Exception):
             assert isinstance(ex, expected)
