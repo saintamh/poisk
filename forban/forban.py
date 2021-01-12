@@ -7,7 +7,7 @@ import re
 from cssselect import HTMLTranslator
 
 
-css_to_xpath = HTMLTranslator().css_to_xpath
+_css_to_xpath = HTMLTranslator().css_to_xpath
 
 
 class ForbanException(ValueError):
@@ -53,7 +53,7 @@ def find_many(needle, haystack, allow_mismatch=False, **kwargs):
         if '/' in needle:
             needle = re.sub(r'^/*', './/', needle)
         else:
-            needle = css_to_xpath(needle)
+            needle = _css_to_xpath(needle)
         results = haystack.xpath(needle, **kwargs)
     elif callable(needle):
         results = list(filter(needle, haystack, **kwargs))
