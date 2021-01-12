@@ -8,7 +8,7 @@ import lxml.etree as ET
 import pytest
 
 # forban
-from forban import Mismatch, MoreThanOne, one
+from forban import MoreThanOne, NotFound, one
 
 
 HTML_DOC = ET.HTML(
@@ -47,9 +47,9 @@ XML_DOC = ET.XML(
         ('abracadabra', r'a(.+)a(.+)a(.+)a(.+)a', {}, ('br', 'c', 'd', 'br')),
         ('abracadabra', r'b.a', {}, MoreThanOne),
         ('abracadabra', r'b.a', {'allow_many': True}, 'bra'),
-        ('abracadabra', r'brr', {}, Mismatch),
+        ('abracadabra', r'brr', {}, NotFound),
         ('abracadabra', r'brr', {'allow_mismatch': True}, None),
-        ('abracadabra', r'BR.C', {}, Mismatch),
+        ('abracadabra', r'BR.C', {}, NotFound),
 
         # regex flags
         ('abracadabra', r'BR.C', {'flags': re.I}, 'brac'),
@@ -61,22 +61,22 @@ XML_DOC = ET.XML(
         (HTML_DOC, '//body/p/b/text()', {}, 'forban'),
         (HTML_DOC, 'b/text()', {}, 'forban'),
         (HTML_DOC, '//b/text()', {}, 'forban'),
-        (HTML_DOC, 'i/text()', {}, Mismatch),
+        (HTML_DOC, 'i/text()', {}, NotFound),
         (HTML_DOC, 'i/text()', {'allow_mismatch': True}, None),
         (HTML_DOC, 'p/text()', {}, MoreThanOne),
         (HTML_DOC, 'p/text()', {'allow_many': True}, 'Au large, '),
 
         # Element.xpath() kwargs, used for namespaces, or passing arbitrary variables, see https://lxml.de/xpathxslt.html
         (HTML_DOC, '//p[@id = $my_var]/b', {'my_var': 'first'}, '<b>forban</b>!'),
-        (XML_DOC, 'foo/bar/text()', {}, Mismatch),
-        (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://wrong.com/blah', 'y': 'http://other.com/boo'}}, Mismatch),
+        (XML_DOC, 'foo/bar/text()', {}, NotFound),
+        (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://wrong.com/blah', 'y': 'http://other.com/boo'}}, NotFound),
         (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://xml.com/ns1', 'y': 'http://xml.com/ns2'}}, 'Text'),
 
         # css matching
         (HTML_DOC, 'p b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'p > b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'body b', {}, '<b>forban</b>!'),
-        (HTML_DOC, 'body > b', {}, Mismatch),
+        (HTML_DOC, 'body > b', {}, NotFound),
         (HTML_DOC, 'body > b', {'allow_mismatch': True}, None),
         (HTML_DOC, 'p', {}, MoreThanOne),
         (HTML_DOC, 'p', {'allow_many': True}, '<p id="first">Au large, <b>forban</b>!</p>'),
@@ -85,7 +85,7 @@ XML_DOC = ET.XML(
 
         # arbitrary list filtering
         (['', None, False, 'boo'], bool, {}, 'boo'),
-        (['', None, False, 'boo'], lambda v: v == 'boom', {}, Mismatch),
+        (['', None, False, 'boo'], lambda v: v == 'boom', {}, NotFound),
         (['', None, False, 'boo'], lambda v: v == 'boom', {'allow_mismatch': True}, None),
         (['', None, False, 'boo'], lambda v: not v, {}, MoreThanOne),
         (['', None, False, 'boo'], lambda v: not v, {'allow_many': True}, ''),

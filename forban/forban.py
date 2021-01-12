@@ -10,7 +10,7 @@ from cssselect import HTMLTranslator
 css_to_xpath = HTMLTranslator().css_to_xpath
 
 
-class Mismatch(ValueError):
+class NotFound(ValueError):
     pass
 
 
@@ -21,7 +21,7 @@ class MoreThanOne(ValueError):
 def many(test, collection, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `test` within `collection`. If no match is found and `allow_mismatch` is `False` (the
-    default), a `Mismatch` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
+    default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
     `True`.
 
     Behaviour and remaining `**kwargs` depend on the type of the collection:
@@ -51,14 +51,14 @@ def many(test, collection, allow_mismatch=False, **kwargs):
     else:
         raise TypeError(f"Don't know how to select from {type(collection)}")
     if not results and not allow_mismatch:
-        raise Mismatch(test)
+        raise NotFound(test)
     return results
 
 
 def one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
     """
     Finds and returns the only match of `test` within `collection`. If no match is found and `allow_mismatch` is `False` (the
-    default), a `Mismatch` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
+    default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
     and `allow_many` is `False` (the default), a `MoreThanOne` exception is raised; if `allow_many` is True, the first match is
     returned.
 
@@ -74,15 +74,3 @@ def one(test, collection, allow_mismatch=False, allow_many=False, **kwargs):
     if len(results) > 1 and not allow_many:
         raise MoreThanOne(test)
     return results[0]
-
-
-def one_of(collection, *tests, allow_mismatch=False, allow_many=False):
-    return one(
-        bool,
-        [
-            one(t, collection, allow_mismatch=True, allow_many=allow_many)
-            for t in tests
-        ],
-        allow_mismatch=allow_mismatch,
-        allow_many=allow_many,
-    )
