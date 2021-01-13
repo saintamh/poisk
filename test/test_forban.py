@@ -76,6 +76,33 @@ class MyTree:
         ('abracadabra', r'B R . C', {'flags': re.I|re.X}, 'brac'),
         ('abracadabra', 'a', {'made_up_kwarg': True}, TypeError),
 
+        # pods matching
+        ({'number': 1926}, 'number', {}, 1926),
+        ({'string': 's'}, 'string', {}, 's'),
+        ({'dict': {'k': 'v'}}, 'dict', {}, {'k': 'v'}),
+        ({'null': None}, 'null', {}, None),
+        ({}, 'anything', {}, NotFound),
+        ({}, 'anything', {'allow_mismatch': True}, None),
+        # if the needle resolves to a single list, we return the list. Empty lists are fine
+        ({'list': []}, 'list', {}, []),
+        ({'list': [1, 2, 3]}, 'list', {}, [1, 2, 3]),
+        # if the needle ends in `[]`, however, meaning that we intent to select the list's elements, then the list must have a
+        # single element
+        ({'list': []}, 'list[]', {}, NotFound),
+        ({'list': [1]}, 'list[]', {}, 1),
+        ({'list': [1, 2]}, 'list[]', {}, ManyFound),
+        ({'list': [1, 2]}, 'list[]', {'allow_many': True}, 1),
+        ({'list': [[1, 2]]}, 'list[]', {}, [1, 2]),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj', {}, [{'v': 1}, {'v': 2}]),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[]', {}, ManyFound),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[].v', {}, ManyFound),
+        ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].v', {}, 1),
+        ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].k', {}, NotFound),
+        ({'one two': 12}, 'one two', {}, ValueError),  # can't parse the needle
+        ({'one two': 12}, '"one two"', {}, 12),
+        ({'one two': 12}, "'one two'", {}, 12),
+        ({'"hello"': 12}, r"""'\"hello\"'""", {}, 12),
+
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),
         (HTML_DOC, './body/p/b/text()', {}, 'forban'),
@@ -157,6 +184,28 @@ def test_find_one(haystack, needle, options, expected):
         ('abracadabra', r'. A .', {}, NotFound),
         ('abracadabra', r'. A .', {'flags': re.I|re.X}, ['rac', 'dab']),
         ('abracadabra', 'a', {'made_up_kwarg': True}, TypeError),
+
+        # pods matching
+        ({'number': 1926}, 'number', {}, [1926]),
+        ({'string': 's'}, 'string', {}, ['s']),
+        ({'dict': {'k': 'v'}}, 'dict', {}, [{'k': 'v'}]),
+        ({'null': None}, 'null', {}, [None]),
+        ({}, 'anything', {}, NotFound),
+        ({}, 'anything', {'allow_mismatch': True}, []),
+        # if the needle resolves to a single list, we return the one list. Empty lists are fine
+        ({'list': []}, 'list', {}, [[]]),
+        ({'list': [1, 2, 3]}, 'list', {}, [[1, 2, 3]]),
+        # if the needle ends in `[]`, however, meaning that we intent to select the list's elements, then the list must have
+        # elements
+        ({'list': []}, 'list[]', {}, NotFound),
+        ({'list': [1]}, 'list[]', {}, [1]),
+        ({'list': [1, 2]}, 'list[]', {}, [1, 2]),
+        ({'list': [[1, 2]]}, 'list[]', {}, [[1, 2]]),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj', {}, [[{'v': 1}, {'v': 2}]]),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[]', {}, [{'v': 1}, {'v': 2}]),
+        ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[].v', {}, [1, 2]),
+        ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].v', {}, [1]),
+        ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].k', {}, NotFound),
 
         # xpath matching
         (HTML_DOC, 'body/p/text()', {}, ['Au large, ', '!', 'Au large, flibustier!']),

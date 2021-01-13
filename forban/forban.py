@@ -6,6 +6,9 @@ import re
 # 3rd parties
 from cssselect import HTMLTranslator
 
+# forban
+from .pods import pods_search
+
 
 _css_to_xpath = HTMLTranslator().css_to_xpath
 
@@ -57,6 +60,8 @@ def find_many(needle, haystack, allow_mismatch=False, **kwargs):
         results = haystack.xpath(needle, **kwargs)
     elif callable(needle):
         results = list(filter(needle, haystack, **kwargs))
+    elif isinstance(haystack, (dict, list, tuple)):
+        results = pods_search(needle, haystack)
     else:
         raise TypeError(f"Don't know how to select from {type(haystack)}")
 
