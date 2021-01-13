@@ -35,7 +35,11 @@ when working in Python, as you can just as easily write those as list expression
 
 
 # standards
+from collections.abc import Mapping, Sequence
 import re
+
+
+CHILDREN = object()
 
 
 def pods_search(needle, haystack):
@@ -47,10 +51,11 @@ def pods_search(needle, haystack):
             results.append(node)
         else:
             head, *tail = steps
-            if head == '[]' and isinstance(node, list):
-                for element in reversed(node):
-                    stack.append((element, tail))
-            elif isinstance(node, dict) and head in node:
+            if head is CHILDREN:
+                if isinstance(node, Sequence):
+                    for element in reversed(node):
+                        stack.append((element, tail))
+            elif isinstance(node, Mapping) and head in node:
                 stack.append((node[head], tail))
     return results
 
@@ -77,6 +82,8 @@ def _parse_steps(needle):
         groups = match.groupdict()
         if groups.get('double') or groups.get('single'):
             yield re.sub(r'\\(.)', r'\1', groups.get('double') or groups.get('single'))
+        elif groups.get('brackets'):
+            yield CHILDREN
         else:
-            yield groups.get('word') or groups.get('brackets')
+            yield groups.get('word')
         pos = match.end()

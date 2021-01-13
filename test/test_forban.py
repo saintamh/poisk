@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # standards
+from collections.abc import Mapping, Sequence
 import re
 
 # 3rd parties
@@ -38,17 +39,44 @@ XML_DOC = ET.XML(
 
 
 class MyClass:
-    # cool off, pylint: disable=too-few-public-methods
+    # pylint: disable=too-few-public-methods
     pass
 
 
 class MyString(str):
-    # it's just a dummy, pylint: disable=too-few-public-methods
+    # pylint: disable=too-few-public-methods
     pass
 
 
+class MySequence(Sequence):
+
+    def __init__(self, *values):
+        self.values = values
+
+    def __getitem__(self, item):
+        return self.values[item]
+
+    def __len__(self):
+        return len(self.values)
+
+
+class MyMapping(Mapping):
+
+    def __init__(self, **items):
+        self.items = items
+
+    def __getitem__(self, item):
+        return self.items[item]
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def __len__(self):
+        return len(self.items)
+
+
 class MyTree:
-    # thanks but it's not needed here, pylint: disable=too-few-public-methods
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, element):
         self.element = element
@@ -103,6 +131,10 @@ class MyTree:
         ({'one two': 12}, '"one two"', {}, 12),
         ({'one two': 12}, "'one two'", {}, 12),
         ({'"hello"': 12}, r"""'\"hello\"'""", {}, 12),
+        # any sequence can be traversed the same as a list
+        ({'tuple': ({'v': 1},)}, 'tuple[].v', {}, 1),
+        ({'seq': MySequence({'v': 1})}, 'seq[].v', {}, 1),
+        (MyMapping(x=MySequence(12)), 'x[]', {}, 12),
 
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),

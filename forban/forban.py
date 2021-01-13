@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # standards
+from collections.abc import Mapping, Sequence
 import re
 
 # 3rd parties
@@ -60,7 +61,7 @@ def find_many(needle, haystack, allow_mismatch=False, **kwargs):
         results = haystack.xpath(needle, **kwargs)
     elif callable(needle):
         results = list(filter(needle, haystack, **kwargs))
-    elif isinstance(haystack, (dict, list, tuple)):
+    elif isinstance(haystack, (Mapping, Sequence)):
         results = pods_search(needle, haystack)
     else:
         raise TypeError(f"Don't know how to select from {type(haystack)}")
