@@ -89,6 +89,7 @@ class MyTree:
         # if the needle ends in `[]`, however, meaning that we intent to select the list's elements, then the list must have a
         # single element
         ({'list': []}, 'list[]', {}, NotFound),
+        ({'list': []}, 'list[]', {'allow_mismatch': True}, None),
         ({'list': [1]}, 'list[]', {}, 1),
         ({'list': [1, 2]}, 'list[]', {}, ManyFound),
         ({'list': [1, 2]}, 'list[]', {'allow_many': True}, 1),
@@ -198,6 +199,7 @@ def test_find_one(haystack, needle, options, expected):
         # if the needle ends in `[]`, however, meaning that we intent to select the list's elements, then the list must have
         # elements
         ({'list': []}, 'list[]', {}, NotFound),
+        ({'list': []}, 'list[]', {'allow_mismatch': True}, []),
         ({'list': [1]}, 'list[]', {}, [1]),
         ({'list': [1, 2]}, 'list[]', {}, [1, 2]),
         ({'list': [[1, 2]]}, 'list[]', {}, [[1, 2]]),
