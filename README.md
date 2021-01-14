@@ -53,4 +53,5 @@ is just a cleaner version of this:
 Both `find_one` and `find_many` determine the type of search to perform (regex,
 data structure search, XPath) based on the type of the arguments passed.
 
-For a fuller spec of sorts, see [the tests](test/test_poisk.py).
+For a fuller spec of sorts, see [poisk.py](poisk/poisk.py) and [the
+tests](test/test_poisk.py).
