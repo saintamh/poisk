@@ -7,14 +7,14 @@ import re
 # 3rd parties
 from cssselect import HTMLTranslator
 
-# forban
+# poisk
 from .pods import pods_search
 
 
 _css_to_xpath = HTMLTranslator().css_to_xpath
 
 
-class ForbanException(ValueError):
+class PoiskException(ValueError):
 
     def __init__(self, needle, haystack):
         super().__init__(repr(needle))
@@ -22,11 +22,11 @@ class ForbanException(ValueError):
         self.haystack = haystack
 
 
-class NotFound(ForbanException):
+class NotFound(PoiskException):
     pass
 
 
-class ManyFound(ForbanException):
+class ManyFound(PoiskException):
     pass
 
 

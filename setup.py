@@ -4,7 +4,8 @@
 import setuptools
 
 setuptools.setup(
-    name='forban',
+    name='poisk',
+    description='Small utilities for searching data structures',
     version='1.0',
     author='Hervé Saint-Amand',
     packages=setuptools.find_packages(),

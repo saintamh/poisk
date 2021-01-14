@@ -8,8 +8,8 @@ import re
 import lxml.etree as ET
 import pytest
 
-# forban
-from forban import ManyFound, NotFound, find_many, find_one
+# poisk
+from poisk import ManyFound, NotFound, find_many, find_one
 
 
 HTML_DOC = ET.HTML(
