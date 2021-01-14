@@ -135,6 +135,9 @@ class MyTree:
         ({'tuple': ({'v': 1},)}, 'tuple[].v', {}, 1),
         ({'seq': MySequence({'v': 1})}, 'seq[].v', {}, 1),
         (MyMapping(x=MySequence(12)), 'x[]', {}, 12),
+        # '[]' needs to be quoted
+        ({'list[]': [1, 2, 3]}, 'list[]', {}, NotFound),
+        ({'list[]': [1, 2, 3]}, '"list[]"', {}, [1, 2, 3]),
 
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),
