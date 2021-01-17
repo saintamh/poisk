@@ -9,7 +9,7 @@ import lxml.etree as ET
 import pytest
 
 # poisk
-from poisk import ManyFound, NotFound, find_many, find_one
+from poisk import ManyFound, NotFound, find_all, find_one
 
 
 HTML_DOC = ET.HTML(
@@ -275,9 +275,9 @@ def test_find_one(haystack, needle, options, expected):
 
     ]
 )
-def test_find_many(haystack, needle, options, expected):
+def test_find_all(haystack, needle, options, expected):
     try:
-        results = find_many(needle, haystack, **options)
+        results = find_all(needle, haystack, **options)
     except Exception as ex:  # anything at all, pylint: disable=broad-except
         if isinstance(expected, type) and issubclass(expected, Exception):
             assert isinstance(ex, expected)

@@ -26,14 +26,14 @@ with nicer syntax and clearer error handling.
 
 <br>
 
-The `find_many` function works similarly, but returns a list. It also raises an
+The `find_all` function works similarly, but returns a list. It also raises an
 exception if no matches are found.
 
 So this:
 
 ```python
 >>> payload = {"records": [{"id": 1, "v": 78}, {"id": 2}, {"id": 3, "v": 91}]}
->>> find_many(r'records[].v', payload)
+>>> find_all(r'records[].v', payload)
 [78, 91]
 ```
 
@@ -50,7 +50,7 @@ is just a cleaner version of this:
 
 <br>
 
-Both `find_one` and `find_many` determine the type of search to perform (regex,
+Both `find_one` and `find_all` determine the type of search to perform (regex,
 data structure search, XPath) based on the type of the arguments passed.
 
 For a fuller spec of sorts, see [poisk.py](poisk/poisk.py) and [the

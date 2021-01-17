@@ -10,7 +10,7 @@ import poisk
 
 
 NAMESPACE = {
-    'find_many': poisk.find_many,
+    'find_all': poisk.find_all,
     'find_one': poisk.find_one,
     're': re,
 }

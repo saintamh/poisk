@@ -30,7 +30,7 @@ class ManyFound(PoiskException):
     pass
 
 
-def find_many(needle, haystack, allow_mismatch=False, **kwargs):
+def find_all(needle, haystack, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
@@ -83,7 +83,7 @@ def find_one(needle, haystack, allow_mismatch=False, allow_many=False, **kwargs)
 
     Behaviour and remaining `**kwargs` depend on the type of the haystack, see the docstring for `many` for details.
     """
-    results = find_many(needle, haystack, allow_mismatch=allow_mismatch, **kwargs)
+    results = find_all(needle, haystack, allow_mismatch=allow_mismatch, **kwargs)
     if not results:
         assert allow_mismatch
         return None
