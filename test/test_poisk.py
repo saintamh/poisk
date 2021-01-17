@@ -130,7 +130,7 @@ class MyTree:
         ({'one two': 12}, 'one two', {}, ValueError),  # can't parse the needle
         ({'one two': 12}, '"one two"', {}, 12),
         ({'one two': 12}, "'one two'", {}, 12),
-        ({'"hello"': 12}, r"""'\"hello\"'""", {}, 12),
+        ({'"hello"': 12}, r'''\'\"hello\"\'''', {}, 12),
         # any sequence can be traversed the same as a list
         ({'tuple': ({'v': 1},)}, 'tuple[].v', {}, 1),
         ({'seq': MySequence({'v': 1})}, 'seq[].v', {}, 1),

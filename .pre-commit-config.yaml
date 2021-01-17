@@ -5,5 +5,6 @@ repos:
   - id: pylint
     name: pylint
     entry: pylint
+    args: ['--load-plugins', 'pylint_quotes']
     language: python
     types: [python]
