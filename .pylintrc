@@ -2,6 +2,7 @@
 
 disable=
     missing-docstring,
+    no-else-raise,  # "else" after "raise" can improve legibility
 
 
 [REPORTS]

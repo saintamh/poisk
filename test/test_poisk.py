@@ -24,6 +24,18 @@ HTML_DOC = ET.HTML(
 )
 
 
+FIRST_P = find_one(
+    '#one',
+    ET.HTML(
+        '''
+        <div>
+          <p id="one">This is <b>one has <b>nests</b></b></p>
+          <p id="two">This is <b>two</b></p>
+        '''
+    )
+)
+
+
 XML_DOC = ET.XML(
     '''
     <doc
@@ -130,7 +142,7 @@ class MyTree:
         ({'one two': 12}, 'one two', {}, ValueError),  # can't parse the needle
         ({'one two': 12}, '"one two"', {}, 12),
         ({'one two': 12}, "'one two'", {}, 12),
-        ({'"hello"': 12}, r'''\'\"hello\"\'''', {}, 12),
+        ({'"hello"': 12}, '\'"hello"\'', {}, 12),
         # any sequence can be traversed the same as a list
         ({'tuple': ({'v': 1},)}, 'tuple[].v', {}, 1),
         ({'seq': MySequence({'v': 1})}, 'seq[].v', {}, 1),
@@ -156,6 +168,14 @@ class MyTree:
         (XML_DOC, 'foo/bar/text()', {}, NotFound),
         (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://wrong.com/blah', 'y': 'http://other.com/boo'}}, NotFound),
         (XML_DOC, 'x:foo/y:bar/text()', {'namespaces': {'x': 'http://xml.com/ns1', 'y': 'http://xml.com/ns2'}}, 'Text'),
+
+        # xpath matching is limited to the given node's subtree
+        (FIRST_P.getparent(), 'b', {}, ManyFound),
+        (FIRST_P, 'b', {}, ManyFound),
+        (FIRST_P, '/b', {}, '<b>one has <b>nests</b></b>'),
+        (FIRST_P, './b', {}, '<b>one has <b>nests</b></b>'),
+        (FIRST_P, '//b', {}, ManyFound),
+        (FIRST_P, './/b', {}, ManyFound),
 
         # css matching
         (HTML_DOC, 'p b', {}, '<b>forban</b>!'),
@@ -248,6 +268,14 @@ def test_find_one(haystack, needle, options, expected):
         (HTML_DOC, 'body/p/text()', {}, ['Au large, ', '!', 'Au large, flibustier!']),
         (HTML_DOC, 'body/div/text()', {}, NotFound),
         (HTML_DOC, 'body/div/text()', {'allow_mismatch': True}, []),
+
+        # xpath matching is limited to the given node's subtree
+        (FIRST_P.getparent(), 'b', {}, ['<b>one has <b>nests</b></b>', '<b>nests</b>', '<b>two</b>']),
+        (FIRST_P, 'b', {}, ['<b>one has <b>nests</b></b>', '<b>nests</b>']),
+        (FIRST_P, '/b', {}, ['<b>one has <b>nests</b></b>']),
+        (FIRST_P, './b', {}, ['<b>one has <b>nests</b></b>']),
+        (FIRST_P, '//b', {}, ['<b>one has <b>nests</b></b>', '<b>nests</b>']),
+        (FIRST_P, './/b', {}, ['<b>one has <b>nests</b></b>', '<b>nests</b>']),
 
         # css matching
         (HTML_DOC, 'p', {}, ['<p id="first">Au large, <b>forban</b>!</p>', '<p class="second">Au large, flibustier!</p>']),
