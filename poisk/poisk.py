@@ -67,7 +67,10 @@ def find_all(needle, haystack, allow_mismatch=False, **kwargs):
     elif isinstance(haystack, (Mapping, Sequence)):
         results = pods_search(needle, haystack)
     else:
-        raise TypeError(f"Don't know how to select from {type(haystack)}")
+        if haystack is None:
+            raise TypeError('haystack is None') from None
+        else:
+            raise TypeError(f"Don't know how to select from {type(haystack)}")
 
     if not results and not allow_mismatch:
         raise NotFound(needle, haystack)
