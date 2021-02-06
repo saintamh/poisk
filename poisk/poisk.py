@@ -30,7 +30,7 @@ class ManyFound(PoiskException):
     pass
 
 
-def find_all(needle, haystack, allow_mismatch=False, **kwargs):
+def find_all(needle, haystack, allow_mismatch=False, type=None, **kwargs):
     """
     Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
@@ -49,6 +49,8 @@ def find_all(needle, haystack, allow_mismatch=False, **kwargs):
     If `needle` is a function, it will be called in turn with each element of `haystack`, and the returned list will contain only
     those elements for which the function returned a truthy value. This is done by calling `filter`, which accepts no kwargs, and
     so in this case no `**kwargs` may be provided.
+
+    `type`, if specified, is a callable that will be applied to every return, map-style.
     """
 
     if isinstance(haystack, str):
@@ -74,10 +76,12 @@ def find_all(needle, haystack, allow_mismatch=False, **kwargs):
 
     if not results and not allow_mismatch:
         raise NotFound(needle, haystack)
+    if type is not None:
+        results = list(map(type, results))
     return results
 
 
-def find_one(needle, haystack, allow_mismatch=False, allow_many=False, **kwargs):
+def find_one(needle, haystack, allow_mismatch=False, allow_many=False, type=None, **kwargs):
     """
     Finds and returns the only match of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
@@ -87,9 +91,12 @@ def find_one(needle, haystack, allow_mismatch=False, allow_many=False, **kwargs)
     In other words this function ensures that exactly one value exists that matches the given selector, unless `allow_mismatch` or
     `allow_many` is set to `True`. It only ever returns one value.
 
+    `type`, if specified, is a callable that will be applied to the return value. If will not be applied to the `None` value that
+    is returned if no match is found and allow_mismatch is True.
+
     Behaviour and remaining `**kwargs` depend on the type of the haystack, see the docstring for `many` for details.
     """
-    results = find_all(needle, haystack, allow_mismatch=allow_mismatch, **kwargs)
+    results = find_all(needle, haystack, allow_mismatch=allow_mismatch, type=type, **kwargs)
     if not results:
         assert allow_mismatch
         return None

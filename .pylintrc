@@ -3,6 +3,7 @@
 disable=
     missing-docstring,
     no-else-raise,  # "else" after "raise" can improve legibility
+    redefined-builtin,  # yes we call our variable `type`, that's ok
 
 
 [REPORTS]
