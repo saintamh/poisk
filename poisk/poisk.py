@@ -60,7 +60,6 @@ def find_all(needle, haystack, allow_mismatch=False, type=None, **kwargs):
             # XPath is able to search outside of a given node's subtree. We don't want that, we only want to change the subtree.
             # If the path doesn't already start with "./", prepend a dot, and slashes if there weren't already some.
             xpath = re.sub(r'^(?!\./)/{,2}', lambda m: '.' + (m.group() or '//'), needle)
-            print(xpath)
         else:
             xpath = _css_to_xpath(needle)
         results = haystack.xpath(xpath, **kwargs)
