@@ -55,7 +55,7 @@ def pods_search(needle, haystack):
                 if isinstance(node, Sequence):
                     for element in reversed(node):
                         stack.append((element, tail))
-            elif isinstance(node, Mapping) and head in node:
+            elif (isinstance(node, Mapping) and head in node) or (isinstance(node, Sequence) and isinstance(head, int)):
                 stack.append((node[head], tail))
     return results
 
@@ -66,12 +66,13 @@ def _parse_steps(needle):
         r'''
           \s*
           (?:
-              " (?P<double> (?:[^\\"]|\\.)+ ) "
-            | ' (?P<single> (?:[^\\']|\\.)+ ) '
-            |   (?P<word> \w+ )
-            |   (?P<brackets> \[\] )
+              "  (?P<double> (?:[^\\"]|\\.)+ ) "
+            | '  (?P<single> (?:[^\\']|\\.)+ ) '
+            |    (?P<word> \w+ )
+            | \[ (?P<index> \d+ ) \]
+            |    (?P<brackets> \[\] )
           )
-          (?: \s*\.\s* | (?<!\])(?=\s*\[) | $ )
+          (?: \s*\.\s* | (?=\s*\[) | $ )
         ''',
         flags=re.X,
     )
@@ -82,6 +83,8 @@ def _parse_steps(needle):
         groups = match.groupdict()
         if groups.get('double') or groups.get('single'):
             yield re.sub(r'\\(.)', r'\1', groups.get('double') or groups.get('single'))
+        elif groups.get('index'):
+            yield int(groups['index'])
         elif groups.get('brackets'):
             yield CHILDREN
         else:

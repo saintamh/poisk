@@ -150,6 +150,8 @@ class MyTree:
         # '[]' needs to be quoted
         ({'list[]': [1, 2, 3]}, 'list[]', {}, NotFound),
         ({'list[]': [1, 2, 3]}, '"list[]"', {}, [1, 2, 3]),
+        # list index
+        ({'n': [0, 1, 2]}, 'n[0]', {}, 0),
 
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),
@@ -266,6 +268,7 @@ def test_find_one(haystack, needle, options, expected):
         ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[].v', {}, [1, 2]),
         ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].v', {}, [1]),
         ({'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].k', {}, NotFound),
+        ({'v': [[0,1], [2,3], [4,5]]}, 'v[][0]', {}, [0, 2, 4]),
 
         # xpath matching
         (HTML_DOC, 'body/p/text()', {}, ['Au large, ', '!', 'Au large, flibustier!']),
