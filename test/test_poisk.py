@@ -190,6 +190,11 @@ class MyTree:
         (HTML_DOC, 'p#first b', {}, '<b>forban</b>!'),
         (HTML_DOC, 'p.second', {}, '<p class="second">Au large, flibustier!</p>'),
 
+        # accessing attributes using xpath
+        (FIRST_P, '@id', {}, 'one'),
+        (FIRST_P, './@id', {}, 'one'),
+        (FIRST_P, '/@id', {}, 'one'),
+
         # arbitrary list filtering
         (['', None, False, 'boo'], bool, {}, 'boo'),
         (['', None, False, 'boo'], lambda v: v == 'boom', {}, NotFound),
