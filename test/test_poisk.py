@@ -268,6 +268,8 @@ def test_find_one(haystack, needle, options, expected):
         ({'list': [1]}, 'list[]', {}, [1]),
         ({'list': [1, 2]}, 'list[]', {}, [1, 2]),
         ({'list': [[1, 2]]}, 'list[]', {}, [[1, 2]]),
+        ([1, 2], '[]', {}, [1, 2]),
+        ([], '[]', {}, NotFound),
         ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj', {}, [[{'v': 1}, {'v': 2}]]),
         ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[]', {}, [{'v': 1}, {'v': 2}]),
         ({'list_of_obj': [{'v': 1}, {'v': 2}]}, 'list_of_obj[].v', {}, [1, 2]),
