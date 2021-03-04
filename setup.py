@@ -11,6 +11,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'cssselect>=1.1,<2',
+        'typing-extensions>=3.7,<4',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',

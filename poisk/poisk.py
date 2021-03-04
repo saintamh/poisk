@@ -3,34 +3,118 @@
 # standards
 from collections.abc import Mapping, Sequence
 import re
+from typing import Any, Callable, Iterable, List, TypeVar, overload
 
 # 3rd parties
 from cssselect import HTMLTranslator
+from typing_extensions import Protocol  # for pre-3.8 pythons
 
 # poisk
+from .exceptions import ManyFound, NotFound
 from .pods import pods_search
 
 
 _css_to_xpath = HTMLTranslator().css_to_xpath
 
 
-class PoiskException(ValueError):
+# type annotations used below
 
-    def __init__(self, needle, haystack):
-        super().__init__(repr(needle))
-        self.needle = needle
-        self.haystack = haystack
+T = TypeVar('T')  # pylint: disable=invalid-name
+
+TPrime = TypeVar('TPrime')
+
+class HasXPathMethod(Protocol):
+
+    @property
+    def xpath(self) -> Callable[..., Any]:
+        # This declaration here is not actually for a property, it's for any method called `xpath`, regardless of signature. This
+        # hacky solution of using a @property was copied from https://github.com/python/mypy/issues/9560#issuecomment-705955103
+        ...
+
+XPathType = TypeVar('XPathType', bound=HasXPathMethod)
 
 
-class NotFound(PoiskException):
-    pass
+
+@overload
+def find_all(
+    needle: str,
+    haystack: str,
+    type: None = None,
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[str]:
+    """
+    When `haystack` is a str, then `needle` is a regex for searching in it. If `type` is None, then we return a list of str's.
+    """
+
+@overload
+def find_all(
+    needle: str,
+    haystack: str,
+    type: Callable[[str], T],
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[T]:
+    """
+    When `haystack` is a str and `type` is not None, then we return a list of whatever type `type` returns.
+    """
 
 
-class ManyFound(PoiskException):
-    pass
+@overload
+def find_all(
+    needle: str,
+    haystack: XPathType,
+    type: None = None,
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[XPathType]:
+    """
+    When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query. If `type` is None, we return a list of Elements. Note
+    that this means that if the xpath selects a string (e.g. "./a/@href"), then you need to specify type=str to please the type
+    checker.
+    """
+
+@overload
+def find_all(
+    needle: str,
+    haystack: XPathType,
+    type: Callable[[XPathType], T],
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[T]:
+    """
+    When `haystack` is an lxml.ET._Element and `type` is not None, we return a list of whatever type `type` returns. Use this with
+    `type=str` if the xpath selector selects text.
+    """
 
 
-def find_all(needle, haystack, allow_mismatch=False, type=None, **kwargs):
+@overload
+def find_all(
+    needle: Callable[[T], bool],
+    haystack: Iterable[T],
+    type = None,
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[T]:
+    """
+    If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `type` is None,
+    we return T's.
+    """
+
+@overload
+def find_all(
+    needle: Callable[[T], bool],
+    haystack: Iterable[T],
+    type: Callable[[T], TPrime],
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[TPrime]:
+    """
+    If `needle` is callable, and `type` is not None, then we return a list of whatever type `type` returns
+    """
+
+
+def find_all(needle, haystack, type=None, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to

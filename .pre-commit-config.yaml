@@ -8,3 +8,10 @@ repos:
     args: ['--load-plugins', 'pylint_quotes']
     language: python
     types: [python]
+
+  - id: mypy
+    name: mypy
+    entry: mypy
+    language: python
+    types: [python]
+    args: [--show-error-codes]

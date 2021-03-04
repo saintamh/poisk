@@ -1,0 +1,86 @@
+# See test_type_checking.py
+
+test_cases:
+
+  ### regex search
+
+  - name: regex find_all happy path
+    expected_error: null
+    code: |-
+      words = find_all(r'\w+', 'The quick brown fox')
+      [w.strip() for w in words]
+
+  - name: regex find_all returns strings
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      words = find_all(r'\w+', 'The quick brown fox')
+      [w.not_a_known_str_attribute for w in words]
+
+  - name: regex find_all requires string needle
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(1, 'The quick brown fox')
+
+  - name: regex find_all requires non-null needle
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(None, 'The quick brown fox')
+
+  - name: regex find_all can take a `type` that maps to str
+    expected_error: null
+    code: |-
+      numbers = find_all(r'\d+', '1 2 3', type=int)
+      [abs(n) for n in numbers]
+
+  - name: regex find_all with type=int returns a list of ints
+    expected_error: '"int" has no attribute "not_a_known_int_attribute"'
+    code: |-
+      numbers = find_all(r'\d+', '1 2 3', type=int)
+      [n.not_a_known_int_attribute for n in numbers]
+
+  - name: regex find_all `type` must accept str as input
+    expected_error: Argument "type" to "find_all" has incompatible type
+    code: |-
+      numbers = find_all(r'\d+', '1 2 3', type=abs)
+
+
+  ### xpath search
+
+  - name: xpath findall happy path
+    expected_error: null
+    code: |-
+      titles = find_all('/h1', lxml.etree.fromstring('<h1>Title!</h1>'))
+      print([t.text for t in titles])
+
+  - name: xpath find_all returns a list of XPathResult
+    expected_error: '"_Element" has no attribute "not_a_known_element_attribute"'
+    code: |-
+      titles = find_all('/h1', lxml.etree.fromstring('<h1>Title!</h1>'))
+      print([t.not_a_known_element_attribute for t in titles])
+
+  - name: xpath find_all needle must be str
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(1, lxml.etree.fromstring('<h1>Title!</h1>'))
+
+  - name: xpath find_all needle must be non-null
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(None, lxml.etree.fromstring('<h1>Title!</h1>'))
+
+  - name: xpath find_all accepts a `type` that accepts XPathResult as input
+    expected_error: null
+    code: |-
+      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=str)
+      print([t.upper() for t in titles])
+
+  - name: xpath find_all with type returns a list of that type
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=str)
+      print([t.not_a_known_str_attribute for t in titles])
+
+  - name: xpath find_all `type` must accept XPathResult as input
+    expected_error: Argument "type" to "find_all" has incompatible type
+    code: |-
+      find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=abs)
