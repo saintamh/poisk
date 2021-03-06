@@ -109,9 +109,9 @@ def find_all(
 
 @overload
 def find_all(
-    needle: Callable[[T], bool],
+    needle: Callable[[T], Any],
     haystack: Iterable[T],
-    type = None,
+    type: None = None,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
@@ -122,7 +122,7 @@ def find_all(
 
 @overload
 def find_all(
-    needle: Callable[[T], bool],
+    needle: Callable[[T], Any],
     haystack: Iterable[T],
     type: Callable[[T], TPrime],
     allow_mismatch: bool = False,

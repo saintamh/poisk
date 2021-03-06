@@ -26,7 +26,7 @@ test_cases:
     code: |-
       find_all(None, 'The quick brown fox')
 
-  - name: regex find_all can take a `type` that maps to str
+  - name: regex find_all can take a `type` that maps from str
     expected_error: null
     code: |-
       numbers = find_all(r'\d+', '1 2 3', type=int)
@@ -90,3 +90,54 @@ test_cases:
     expected_error: Argument "type" to "find_all" has incompatible type
     code: |-
       find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=abs)
+
+
+  ### callable search
+
+  - name: callable find_all happy path
+    expected_error: null
+    code: |-
+      import math
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+      even = find_all(is_even, range(10))
+      list(map(math.log, even))
+
+  - name: callable find_all works with any iterable
+    expected_error: null
+    code: |-
+      import math
+      from typing import Iterable
+
+      class MyIterable(Iterable[int]):
+        def __iter__(self):
+          yield 1
+          yield 2
+          yield 3
+
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+      even = find_all(is_even, MyIterable())
+      list(map(math.log, even))
+
+  - name: callable find_all can take a `type` that maps to a different type
+    expected_error: null
+    code: |-
+      from pathlib import Path
+      from typing import Iterable
+
+      class MyIterable(Iterable[int]):
+        def __iter__(self):
+          yield 1
+          yield 2
+          yield 3
+
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+      def as_path(number: int) -> Path:
+        return Path(str(number))
+
+      even_paths = find_all(is_even, MyIterable(), type=as_path)
+      [p.glob('*') for p in even_paths]
