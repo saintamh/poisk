@@ -52,7 +52,7 @@ test_cases:
       titles = find_all('/h1', lxml.etree.fromstring('<h1>Title!</h1>'))
       print([t.text for t in titles])
 
-  - name: xpath find_all returns a list of XPathResult
+  - name: xpath find_all returns a list of elements
     expected_error: '"_Element" has no attribute "not_a_known_element_attribute"'
     code: |-
       titles = find_all('/h1', lxml.etree.fromstring('<h1>Title!</h1>'))
@@ -73,6 +73,12 @@ test_cases:
     code: |-
       titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=str)
       print([t.upper() for t in titles])
+
+  - name: xpath find_all accepts an int `type`
+    expected_error: null
+    code: |-
+      ids = find_all('a/@id', lxml.etree.fromstring('<a id="5" />'), type=int)
+      print([10 ** i for i in ids])
 
   - name: xpath find_all with type returns a list of that type
     expected_error: '"str" has no attribute "not_a_known_str_attribute"'

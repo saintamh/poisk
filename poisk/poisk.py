@@ -92,6 +92,20 @@ def find_all(
     `type=str` if the xpath selector selects text.
     """
 
+@overload
+def find_all(
+    needle: str,
+    haystack: XPathType,
+    type: Callable[[str], T],
+    allow_mismatch: bool = False,
+    **kwargs
+) -> List[T]:
+    """
+    When `haystack` is an lxml.ET._Element and `type` is a callable that accepts a `str`, we return a list of whatever type `type`
+    returns. Use this with e.g. `type=int` to convert text selected by the xpath to an int. Note that it can still fail at runtime
+    if the xpath selector doesn't return a string.
+    """
+
 
 @overload
 def find_all(
