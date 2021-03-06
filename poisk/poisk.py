@@ -27,8 +27,9 @@ class HasXPathMethod(Protocol):
 
     @property
     def xpath(self) -> Callable[..., Any]:
-        # This declaration here is not actually for a property, it's for any method called `xpath`, regardless of signature. This
-        # hacky solution of using a @property was copied from https://github.com/python/mypy/issues/9560#issuecomment-705955103
+        # This declaration here is not actually for a property, it's for a method called `xpath`, whose signature we don't care
+        # about (beyond its name). Apparently this is the way you can get mypy to recognize this. This hacky solution of using a
+        # @property was coined (by the BDFL) here: https://github.com/python/mypy/issues/9560#issuecomment-705955103
         ...
 
 XPathType = TypeVar('XPathType', bound=HasXPathMethod)
@@ -72,6 +73,10 @@ def find_all(
     When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query. If `type` is None, we return a list of Elements. Note
     that this means that if the xpath selects a string (e.g. "./a/@href"), then you need to specify type=str to please the type
     checker.
+
+    Note that the type annotation here is slightly off. It says we accept any type that has an `xpath` method, and then return a
+    list of the same type, which isn't 100% correct: the output should be a list of ET._Element objects, but the input could be an
+    ET._ElementTree object. Hopefully it'll work out, since the two classes have very similar interfaces.
     """
 
 @overload
