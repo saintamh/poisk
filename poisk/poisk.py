@@ -133,7 +133,7 @@ def find_all(
     """
 
 
-def find_all(needle, haystack, parse=None, allow_mismatch=False, **kwargs):
+def find_all(needle, haystack, parse=None, *, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
@@ -183,7 +183,7 @@ def find_all(needle, haystack, parse=None, allow_mismatch=False, **kwargs):
     return results
 
 
-def find_one(needle, haystack, allow_mismatch=False, allow_many=False, parse=None, **kwargs):
+def find_one(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, **kwargs):
     """
     Finds and returns the only match of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
