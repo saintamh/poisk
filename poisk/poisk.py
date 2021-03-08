@@ -40,24 +40,24 @@ XPathType = TypeVar('XPathType', bound=HasXPathMethod)
 def find_all(
     needle: str,
     haystack: str,
-    type: None = None,
+    parse: None = None,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[str]:
     """
-    When `haystack` is a str, then `needle` is a regex for searching in it. If `type` is None, then we return a list of str's.
+    When `haystack` is a str, then `needle` is a regex for searching in it. If `parse` is None, then we return a list of str's.
     """
 
 @overload
 def find_all(
     needle: str,
     haystack: str,
-    type: Callable[[str], T],
+    parse: Callable[[str], T],
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
     """
-    When `haystack` is a str and `type` is not None, then we return a list of whatever type `type` returns.
+    When `haystack` is a str and `parse` is not None, then we return a list of whatever type `parse` returns.
     """
 
 
@@ -65,12 +65,12 @@ def find_all(
 def find_all(
     needle: str,
     haystack: XPathType,
-    type: None = None,
+    parse: None = None,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[XPathType]:
     """
-    When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query. If `type` is None, we return a list of Elements. Note
+    When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query. If `parse` is None, we return a list of Elements. Note
     that this means that if the xpath selects a string (e.g. "./a/@href"), then you need to specify type=str to please the type
     checker.
 
@@ -83,27 +83,27 @@ def find_all(
 def find_all(
     needle: str,
     haystack: XPathType,
-    type: Callable[[XPathType], T],
+    parse: Callable[[XPathType], T],
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
     """
-    When `haystack` is an lxml.ET._Element and `type` is not None, we return a list of whatever type `type` returns. Use this with
-    `type=str` if the xpath selector selects text.
+    When `haystack` is an lxml.ET._Element and `parse` is not None, we return a list of whatever type `parse` returns. Use this
+    with `parse=str` if the xpath selector selects text.
     """
 
 @overload
 def find_all(
     needle: str,
     haystack: XPathType,
-    type: Callable[[str], T],
+    parse: Callable[[str], T],
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
     """
-    When `haystack` is an lxml.ET._Element and `type` is a callable that accepts a `str`, we return a list of whatever type `type`
-    returns. Use this with e.g. `type=int` to convert text selected by the xpath to an int. Note that it can still fail at runtime
-    if the xpath selector doesn't return a string.
+    When `haystack` is an lxml.ET._Element and `parse` is a callable that accepts a `str`, we return a list of whatever type
+    `parse` returns. Use this with e.g. `parse=int` to convert text selected by the xpath to an int. Note that it can still fail at
+    runtime if the xpath selector doesn't return a string.
     """
 
 
@@ -111,12 +111,12 @@ def find_all(
 def find_all(
     needle: Callable[[T], Any],
     haystack: Iterable[T],
-    type: None = None,
+    parse: None = None,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
     """
-    If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `type` is None,
+    If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None,
     we return T's.
     """
 
@@ -124,16 +124,16 @@ def find_all(
 def find_all(
     needle: Callable[[T], Any],
     haystack: Iterable[T],
-    type: Callable[[T], TPrime],
+    parse: Callable[[T], TPrime],
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[TPrime]:
     """
-    If `needle` is callable, and `type` is not None, then we return a list of whatever type `type` returns
+    If `needle` is callable, and `parse` is not None, then we return a list of whatever type `parse` returns
     """
 
 
-def find_all(needle, haystack, type=None, allow_mismatch=False, **kwargs):
+def find_all(needle, haystack, parse=None, allow_mismatch=False, **kwargs):
     """
     Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
@@ -153,7 +153,7 @@ def find_all(needle, haystack, type=None, allow_mismatch=False, **kwargs):
     those elements for which the function returned a truthy value. This is done by calling `filter`, which accepts no kwargs, and
     so in this case no `**kwargs` may be provided.
 
-    `type`, if specified, is a callable that will be applied to every return, map-style.
+    `parse`, if specified, is a callable that will be applied to every return, map-style.
     """
 
     if isinstance(haystack, str):
@@ -178,12 +178,12 @@ def find_all(needle, haystack, type=None, allow_mismatch=False, **kwargs):
 
     if not results and not allow_mismatch:
         raise NotFound(needle, haystack)
-    if type is not None:
-        results = list(map(type, results))
+    if parse is not None:
+        results = list(map(parse, results))
     return results
 
 
-def find_one(needle, haystack, allow_mismatch=False, allow_many=False, type=None, **kwargs):
+def find_one(needle, haystack, allow_mismatch=False, allow_many=False, parse=None, **kwargs):
     """
     Finds and returns the only match of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
     default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
@@ -193,12 +193,12 @@ def find_one(needle, haystack, allow_mismatch=False, allow_many=False, type=None
     In other words this function ensures that exactly one value exists that matches the given selector, unless `allow_mismatch` or
     `allow_many` is set to `True`. It only ever returns one value.
 
-    `type`, if specified, is a callable that will be applied to the return value. If will not be applied to the `None` value that
+    `parse`, if specified, is a callable that will be applied to the return value. If will not be applied to the `None` value that
     is returned if no match is found and allow_mismatch is True.
 
     Behaviour and remaining `**kwargs` depend on the type of the haystack, see the docstring for `many` for details.
     """
-    results = find_all(needle, haystack, allow_mismatch=allow_mismatch, type=type, **kwargs)
+    results = find_all(needle, haystack, allow_mismatch=allow_mismatch, parse=parse, **kwargs)
     if not results:
         assert allow_mismatch
         return None

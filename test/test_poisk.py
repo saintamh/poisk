@@ -216,9 +216,9 @@ class MyTree:
         (MyTree(HTML_DOC), 'body/p/b/text()', {}, 'forban'),
         (MyTree(HTML_DOC), 'p b', {}, '<b>forban</b>!'),
 
-        # `type` is applied iff a match was found
-        ('I have 10 brothers', r'\d+', {'type': int}, 10),
-        ('I have no brothers', r'\d+', {'type': int, 'allow_mismatch': True}, None),
+        # `parse` is applied iff a match was found
+        ('I have 10 brothers', r'\d+', {'parse': int}, 10),
+        ('I have no brothers', r'\d+', {'parse': int, 'allow_mismatch': True}, None),
     ]
 )
 def test_find_one(haystack, needle, options, expected):
@@ -314,8 +314,8 @@ def test_find_one(haystack, needle, options, expected):
         (MyTree(HTML_DOC), 'body/p/b/text()', {}, ['forban']),
         (MyTree(HTML_DOC), 'p b', {}, ['<b>forban</b>!']),
 
-        # `type` is applied to every match
-        ('in my honest opinion', r'\b\w', {'type': str.upper}, ['I', 'M', 'H', 'O']),
+        # `parse` is applied to every match
+        ('in my honest opinion', r'\b\w', {'parse': str.upper}, ['I', 'M', 'H', 'O']),
     ]
 )
 def test_find_all(haystack, needle, options, expected):

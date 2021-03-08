@@ -26,22 +26,22 @@ test_cases:
     code: |-
       find_all(None, 'The quick brown fox')
 
-  - name: regex find_all can take a `type` that maps from str
+  - name: regex find_all can take a `parse` that maps from str
     expected_error: null
     code: |-
-      numbers = find_all(r'\d+', '1 2 3', type=int)
+      numbers = find_all(r'\d+', '1 2 3', parse=int)
       [abs(n) for n in numbers]
 
-  - name: regex find_all with type=int returns a list of ints
+  - name: regex find_all with parse=int returns a list of ints
     expected_error: '"int" has no attribute "not_a_known_int_attribute"'
     code: |-
-      numbers = find_all(r'\d+', '1 2 3', type=int)
+      numbers = find_all(r'\d+', '1 2 3', parse=int)
       [n.not_a_known_int_attribute for n in numbers]
 
-  - name: regex find_all `type` must accept str as input
-    expected_error: Argument "type" to "find_all" has incompatible type
+  - name: regex find_all `parse` must accept str as input
+    expected_error: Argument "parse" to "find_all" has incompatible type
     code: |-
-      numbers = find_all(r'\d+', '1 2 3', type=abs)
+      numbers = find_all(r'\d+', '1 2 3', parse=abs)
 
 
   ### xpath search
@@ -68,28 +68,28 @@ test_cases:
     code: |-
       find_all(None, lxml.etree.fromstring('<h1>Title!</h1>'))
 
-  - name: xpath find_all accepts a `type` that accepts XPathResult as input
+  - name: xpath find_all accepts a `parse` that accepts XPathResult as input
     expected_error: null
     code: |-
-      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=str)
+      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str)
       print([t.upper() for t in titles])
 
-  - name: xpath find_all accepts an int `type`
+  - name: xpath find_all accepts an int `parse`
     expected_error: null
     code: |-
-      ids = find_all('a/@id', lxml.etree.fromstring('<a id="5" />'), type=int)
+      ids = find_all('a/@id', lxml.etree.fromstring('<a id="5" />'), parse=int)
       print([10 ** i for i in ids])
 
-  - name: xpath find_all with type returns a list of that type
+  - name: xpath find_all with parse returns a list of that type
     expected_error: '"str" has no attribute "not_a_known_str_attribute"'
     code: |-
-      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=str)
+      titles = find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str)
       print([t.not_a_known_str_attribute for t in titles])
 
-  - name: xpath find_all `type` must accept XPathResult as input
-    expected_error: Argument "type" to "find_all" has incompatible type
+  - name: xpath find_all `parse` must accept XPathResult as input
+    expected_error: Argument "parse" to "find_all" has incompatible type
     code: |-
-      find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), type=abs)
+      find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
 
 
   ### callable search
@@ -121,7 +121,7 @@ test_cases:
       even = find_all(is_even, MyIterable())
       list(map(math.log, even))
 
-  - name: callable find_all can take a `type` that maps to a different type
+  - name: callable find_all can take a `parse` that maps to a different type
     expected_error: null
     code: |-
       from pathlib import Path
@@ -139,5 +139,5 @@ test_cases:
       def as_path(number: int) -> Path:
         return Path(str(number))
 
-      even_paths = find_all(is_even, MyIterable(), type=as_path)
+      even_paths = find_all(is_even, MyIterable(), parse=as_path)
       [p.glob('*') for p in even_paths]
