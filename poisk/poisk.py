@@ -113,6 +113,7 @@ def find_all(
     needle: str,
     haystack: XPathType,
     parse: Callable[[XPathType], T],
+    *,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
@@ -126,6 +127,7 @@ def find_all(
     needle: str,
     haystack: XPathType,
     parse: Callable[[str], T],
+    *,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
@@ -141,6 +143,7 @@ def find_all(
     needle: Callable[[T], Any],
     haystack: Iterable[T],
     parse: None = None,
+    *,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[T]:
@@ -154,6 +157,7 @@ def find_all(
     needle: Callable[[T], Any],
     haystack: Iterable[T],
     parse: Callable[[T], TPrime],
+    *,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[TPrime]:
