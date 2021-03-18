@@ -143,11 +143,10 @@ def find_all(
     parse: None = None,
     *,
     allow_mismatch: bool = False,
-    **kwargs
 ) -> List[T]:
     """
     If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None,
-    we return T's.
+    we return T's. Note that this variant accepts no wildcard **kwargs.
     """
 
 @overload
@@ -157,10 +156,10 @@ def find_all(
     parse: Callable[[T], TPrime],
     *,
     allow_mismatch: bool = False,
-    **kwargs
 ) -> List[TPrime]:
     """
-    If `needle` is callable, and `parse` is not None, then we return a list of whatever type `parse` returns
+    If `needle` is callable, and `parse` is not None, then we return a list of whatever type `parse` returns. This variant accepts
+    no wildcard **kwargs.
     """
 
 

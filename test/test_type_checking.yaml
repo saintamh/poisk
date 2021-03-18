@@ -194,3 +194,13 @@ test_cases:
 
       even_paths = find_all(is_even, MyIterable(), parse=as_path)
       [p.glob('*') for p in even_paths]
+
+  - name: callable find_all accepts no kwargs
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(lambda i: i % 2 == 0, range(10), unknown_kwarg=True)
+
+  - name: callable find_all accepts no kwargs when there's a parse method, either
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      find_all(lambda i: i % 2 == 0, range(10), parse=str, unknown_kwarg=True)
