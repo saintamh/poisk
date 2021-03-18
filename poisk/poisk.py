@@ -56,10 +56,9 @@ def find_all(
     parse: None = None,
     *,
     allow_mismatch: bool = False,
-    flags: int = 0,
 ) -> List[str]:
     """
-    Regex needles can also be expressed as `re.Pattern` objects
+    Regex needles can also be expressed as `re.Pattern` objects. Note that in that case the `flags` kwarg can't be used.
     """
 
 @overload
@@ -82,10 +81,9 @@ def find_all(
     parse: Callable[[str], T],
     *,
     allow_mismatch: bool = False,
-    flags: int = 0,
 ) -> List[T]:
     """
-    In this case too, `needle` can be a `re.Pattern` object
+    In this case too, `needle` can be a `re.Pattern` object. Again in this case the `flags` kwarg can't be used.
     """
 
 

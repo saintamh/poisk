@@ -43,6 +43,16 @@ test_cases:
     code: |-
       numbers = find_all(r'\d+', '1 2 3', parse=abs)
 
+  - name: regex find_all accepts `flags` kwarg
+    expected_error: null
+    code: |-
+      words = find_all(r'[a-z]+', 'The quick brown fox', flags=re.I)
+
+  - name: regex find_all only accepts `flags` kwarg
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      words = find_all(r'[a-z]+', 'The quick brown fox', unknown_kwarg=re.I)
+
 
   ### regex search using a compiled pattern
 
@@ -74,6 +84,17 @@ test_cases:
     expected_error: Argument "parse" to "find_all" has incompatible type
     code: |-
       numbers = find_all(re.compile(r'\d+'), '1 2 3', parse=abs)
+
+  - name: compiled regex find_all doesn't accept `flags` kwarg
+    # because the call would fail anyway
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      words = find_all(re.compile(r'[a-z]+'), 'The quick brown fox', flags=re.I)
+
+  - name: regex find_all doesn't accept unknown kwargs either
+    expected_error: No overload variant of "find_all" matches argument types
+    code: |-
+      words = find_all(re.compile(r'[a-z]+'), 'The quick brown fox', unknown_kwarg=re.I)
 
 
   ### xpath search
