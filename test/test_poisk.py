@@ -251,6 +251,9 @@ def test_find_one(haystack, needle, options, expected):
         ('abracadabra', r'. A .', {'flags': re.I|re.X}, ['rac', 'dab']),
         ('abracadabra', 'a', {'made_up_kwarg': True}, TypeError),
 
+        # regex objects are also accepted
+        ('abracadabra', re.compile(r'.a.'), {}, ['rac', 'dab']),
+
         # pods matching
         ({'number': 1926}, 'number', {}, [1926]),
         ({'string': 's'}, 'string', {}, ['s']),

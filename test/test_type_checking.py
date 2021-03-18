@@ -14,6 +14,7 @@ import yaml
 
 def load_fixtures():
     auto_imports = dedent('''\
+        import re
         import lxml.etree
         from poisk import find_all
     ''')

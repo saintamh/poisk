@@ -41,8 +41,9 @@ def find_all(
     needle: str,
     haystack: str,
     parse: None = None,
+    *,
     allow_mismatch: bool = False,
-    **kwargs
+    flags: int = 0,
 ) -> List[str]:
     """
     When `haystack` is a str, then `needle` is a regex for searching in it. If `parse` is None, then we return a list of str's.
@@ -50,14 +51,41 @@ def find_all(
 
 @overload
 def find_all(
+    needle: re.Pattern,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: bool = False,
+    flags: int = 0,
+) -> List[str]:
+    """
+    Regex needles can also be expressed as `re.Pattern` objects
+    """
+
+@overload
+def find_all(
     needle: str,
     haystack: str,
     parse: Callable[[str], T],
+    *,
     allow_mismatch: bool = False,
-    **kwargs
+    flags: int = 0,
 ) -> List[T]:
     """
     When `haystack` is a str and `parse` is not None, then we return a list of whatever type `parse` returns.
+    """
+
+@overload
+def find_all(
+    needle: re.Pattern[str],
+    haystack: str,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: bool = False,
+    flags: int = 0,
+) -> List[T]:
+    """
+    In this case too, `needle` can be a `re.Pattern` object
     """
 
 
@@ -66,6 +94,7 @@ def find_all(
     needle: str,
     haystack: XPathType,
     parse: None = None,
+    *,
     allow_mismatch: bool = False,
     **kwargs
 ) -> List[XPathType]:

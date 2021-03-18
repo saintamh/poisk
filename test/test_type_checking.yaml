@@ -44,6 +44,38 @@ test_cases:
       numbers = find_all(r'\d+', '1 2 3', parse=abs)
 
 
+  ### regex search using a compiled pattern
+
+  - name: compiled regex find_all happy path
+    expected_error: null
+    code: |-
+      words = find_all(re.compile(r'\w+'), 'The quick brown fox')
+      [w.strip() for w in words]
+
+  - name: compiled regex find_all returns strings
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      words = find_all(re.compile(r'\w+'), 'The quick brown fox')
+      [w.not_a_known_str_attribute for w in words]
+
+  - name: compiled regex find_all can take a `parse` that maps from str
+    expected_error: null
+    code: |-
+      numbers = find_all(re.compile(r'\d+'), '1 2 3', parse=int)
+      [abs(n) for n in numbers]
+
+  - name: compiled regex find_all with parse=int returns a list of ints
+    expected_error: '"int" has no attribute "not_a_known_int_attribute"'
+    code: |-
+      numbers = find_all(re.compile(r'\d+'), '1 2 3', parse=int)
+      [n.not_a_known_int_attribute for n in numbers]
+
+  - name: compiled regex find_all `parse` must accept str as input
+    expected_error: Argument "parse" to "find_all" has incompatible type
+    code: |-
+      numbers = find_all(re.compile(r'\d+'), '1 2 3', parse=abs)
+
+
   ### xpath search
 
   - name: xpath findall happy path
