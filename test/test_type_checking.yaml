@@ -2,7 +2,7 @@
 
 test_cases:
 
-  ### regex search
+  ### find_all: regex search
 
   - name: regex find_all happy path
     expected_error: null
@@ -54,7 +54,7 @@ test_cases:
       words = find_all(r'[a-z]+', 'The quick brown fox', unknown_kwarg=re.I)
 
 
-  ### regex search using a compiled pattern
+  ### find_all: regex search using a compiled pattern
 
   - name: compiled regex find_all happy path
     expected_error: null
@@ -97,7 +97,7 @@ test_cases:
       words = find_all(re.compile(r'[a-z]+'), 'The quick brown fox', unknown_kwarg=re.I)
 
 
-  ### xpath search
+  ### find_all: xpath search
 
   - name: xpath findall happy path
     expected_error: null
@@ -145,7 +145,7 @@ test_cases:
       find_all('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
 
 
-  ### callable search
+  ### find_all: callable search
 
   - name: callable find_all happy path
     expected_error: null
@@ -204,3 +204,254 @@ test_cases:
     expected_error: No overload variant of "find_all" matches argument types
     code: |-
       find_all(lambda i: i % 2 == 0, range(10), parse=str, unknown_kwarg=True)
+
+
+  ### find_one: regex search
+
+  - name: regex find_one happy path
+    expected_error: null
+    code: |-
+      find_one(r'\w+', 'Hello!').strip()
+
+  - name: regex find_one returns a string
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      find_one(r'\w+', 'Hello!').not_a_known_str_attribute
+
+  - name: regex find_one with allow_mismatch=True returns an Optional[str]
+    expected_error: Item "None" of "Optional[str]" has no attribute "strip"
+    code: |-
+      find_one(r'\w+', 'Hello!', allow_mismatch=True).strip()
+
+  - name: regex find_one requires string needle
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(1, 'The quick brown fox')
+
+  - name: regex find_one requires non-null needle
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(None, 'The quick brown fox')
+
+  - name: regex find_one can take a `parse` that maps from str
+    expected_error: null
+    code: |-
+      abs(find_one(r'\d+', 'abcd 123', parse=int))
+
+  - name: regex find_one with parse=int returns an int
+    expected_error: '"int" has no attribute "not_a_known_int_attribute"'
+    code: |-
+      find_one(r'\d+', 'abcd 123', parse=int).not_a_known_int_attribute
+
+  - name: regex find_one with `parse=int` and `allow_mismatch=True` returns an Optional[int]
+    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]
+    code: |-
+      abs(find_one(r'\d+', 'abcd 123', parse=int, allow_mismatch=True))
+
+  - name: regex find_one `parse` must accept str as input
+    expected_error: Argument "parse" to "find_one" has incompatible type
+    code: |-
+      find_one(r'\d+', 'abcd 123', parse=abs)
+
+  - name: regex find_one accepts `flags` kwarg
+    expected_error: null
+    code: |-
+      find_one(r'[a-z]+', 'Hello!', flags=re.I)
+
+  - name: regex find_one only accepts `flags` kwarg
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(r'[a-z]+', 'Hello!', unknown_kwarg=re.I)
+
+
+  ### find_one: regex search using a compiled pattern
+
+  - name: compiled regex find_one happy path
+    expected_error: null
+    code: |-
+      find_one(re.compile(r'\w+'), 'Hello!').strip()
+
+  - name: compiled regex find_one returns a string
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      find_one(re.compile(r'\w+'), 'Hello!').not_a_known_str_attribute
+
+  - name: compiled regex find_one with allow_mismatch=True returns an Optional[str]
+    expected_error: Item "None" of "Optional[str]" has no attribute "strip"
+    code: |-
+      find_one(re.compile(r'\w+'), 'Hello!', allow_mismatch=True).strip()
+
+  - name: compiled regex find_one can take a `parse` that maps from str
+    expected_error: null
+    code: |-
+      abs(find_one(re.compile(r'\d+'), 'abcd 123', parse=int))
+
+  - name: compiled regex find_one with parse=int returns an int
+    expected_error: '"int" has no attribute "not_a_known_int_attribute"'
+    code: |-
+      find_one(re.compile(r'\d+'), 'abcd 123', parse=int).not_a_known_int_attribute
+
+  - name: compiled regex find_one with `parse=int` and `allow_mismatch=True` returns an Optional[int]
+    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]
+    code: |-
+      abs(find_one(re.compile(r'\d+'), 'abcd 123', parse=int, allow_mismatch=True))
+
+  - name: compiled regex find_one `parse` must accept str as input
+    expected_error: Argument "parse" to "find_one" has incompatible type
+    code: |-
+      find_one(re.compile(r'\d+'), 'abcd 123', parse=abs)
+
+  - name: compiled regex find_one doesn't accept `flags` kwarg
+    # because the call would fail anyway
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(re.compile(r'[a-z]+'), 'Hello!', flags=re.I)
+
+  - name: regex find_one doesn't accept unknown kwargs either
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(re.compile(r'[a-z]+'), 'Hello!', unknown_kwarg=re.I)
+
+
+  ### find_one: xpath search
+
+  - name: xpath findall happy path
+    expected_error: null
+    code: |-
+      find_one('/h1', lxml.etree.fromstring('<h1>Title!</h1>')).text
+
+  - name: xpath find_one returns an Element
+    expected_error: '"_Element" has no attribute "not_a_known_element_attribute"'
+    code: |-
+      find_one('/h1', lxml.etree.fromstring('<h1>Title!</h1>')).not_a_known_element_attribute
+
+  - name: xpath find_one with allow_mismatch=True returns an Optional[Element]
+    expected_error: '"Optional[_Element]" has no attribute "text"'
+    code: |-
+      find_one('/h1', lxml.etree.fromstring('<h1>Title!</h1>'), allow_mismatch=True).text
+
+  - name: xpath find_one needle must be str
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(1, lxml.etree.fromstring('<h1>Title!</h1>'))
+
+  - name: xpath find_one needle must be non-null
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      find_one(None, lxml.etree.fromstring('<h1>Title!</h1>'))
+
+  - name: xpath find_one accepts a `parse` that accepts XPathResult as input
+    expected_error: null
+    code: |-
+      find_one('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str).upper()
+
+  - name: xpath find_one accepts a `parse` that accepts XPathResult as input, with allow_mismatch=True becomes optional
+    expected_error: '"Optional[str]" has no attribute "upper"'
+    code: |-
+      find_one('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str, allow_mismatch=True).upper()
+
+  - name: xpath find_one accepts an int `parse`
+    expected_error: null
+    code: |-
+      abs(find_one('a/@id', lxml.etree.fromstring('<a id="5" />'), parse=int))
+
+  - name: xpath find_one accepts an int `parse`, with allow_mismatch=True becomes optional
+    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]"
+    code: |-
+      abs(find_one('a/@id', lxml.etree.fromstring('<a id="5" />'), parse=int, allow_mismatch=True))
+
+  - name: xpath find_one `parse` must accept XPathResult as input
+    expected_error: Argument "parse" to "find_one" has incompatible type
+    code: |-
+      find_one('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
+
+
+  ### find_one: callable search
+
+  - name: callable find_one happy path
+    expected_error: null
+    code: |-
+      import math
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+      math.log(find_one(is_even, [1, 2, 3]))
+
+  - name: callable find_one with allow_mismatch=True returns an Optional
+    expected_error: incompatible type "Optional[int]"; expected "SupportsFloat"
+    code: |-
+      import math
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+      two = find_one(is_even, [1, 2, 3], allow_mismatch=True)
+      math.log(two)
+
+  - name: callable find_one works with any iterable
+    expected_error: null
+    code: |-
+      import math
+      from typing import Iterable
+
+      class MyIterable(Iterable[int]):
+        def __iter__(self):
+          yield 1
+          yield 2
+          yield 3
+
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+      math.log(find_one(is_even, MyIterable()))
+
+  - name: callable find_one can take a `parse` that maps to a different type
+    expected_error: null
+    code: |-
+      from pathlib import Path
+      from typing import Iterable
+
+      class MyIterable(Iterable[int]):
+        def __iter__(self):
+          yield 1
+          yield 2
+          yield 3
+
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+      def as_path(number: int) -> Path:
+        return Path(str(number))
+
+      find_one(is_even, MyIterable(), parse=as_path).glob('*')
+
+  - name: callable find_one wirh `parse` and allow_mismatch=True returns an Optional
+    expected_error: '"Optional[Path]" has no attribute "glob"'
+    code: |-
+      from pathlib import Path
+      from typing import Iterable
+
+      class MyIterable(Iterable[int]):
+        def __iter__(self):
+          yield 1
+          yield 2
+          yield 3
+
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+      def as_path(number: int) -> Path:
+        return Path(str(number))
+
+      find_one(is_even, MyIterable(), parse=as_path, allow_mismatch=True).glob('*')
+
+  - name: callable find_one accepts no kwargs
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+      find_one(is_even, range(10), unknown_kwarg=True)
+
+  - name: callable find_one accepts no kwargs when there's a parse method, either
+    expected_error: No overload variant of "find_one" matches argument types
+    code: |-
+      def is_even(number: int) -> bool:
+        return number % 2 == 0
+      find_one(is_even, range(10), parse=str, unknown_kwarg=True)

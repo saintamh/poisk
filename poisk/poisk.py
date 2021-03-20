@@ -3,11 +3,11 @@
 # standards
 from collections.abc import Mapping, Sequence
 import re
-from typing import Any, Callable, Iterable, List, TypeVar, overload
+from typing import Any, Callable, Iterable, List, Optional, TypeVar, overload
 
 # 3rd parties
 from cssselect import HTMLTranslator
-from typing_extensions import Protocol  # for pre-3.8 pythons
+from typing_extensions import Literal, Protocol  # for pre-3.8 pythons
 
 # poisk
 from .exceptions import ManyFound, NotFound
@@ -76,7 +76,7 @@ def find_all(
 
 @overload
 def find_all(
-    needle: re.Pattern[str],
+    needle: re.Pattern,
     haystack: str,
     parse: Callable[[str], T],
     *,
@@ -138,7 +138,7 @@ def find_all(
 
 @overload
 def find_all(
-    needle: Callable[[T], Any],
+    needle: Callable[[T], object],
     haystack: Iterable[T],
     parse: None = None,
     *,
@@ -151,7 +151,7 @@ def find_all(
 
 @overload
 def find_all(
-    needle: Callable[[T], Any],
+    needle: Callable[[T], object],
     haystack: Iterable[T],
     parse: Callable[[T], TPrime],
     *,
@@ -211,6 +211,263 @@ def find_all(needle, haystack, parse=None, *, allow_mismatch=False, **kwargs):
     if parse is not None:
         results = list(map(parse, results))
     return results
+
+
+@overload
+def find_one(
+    needle: str,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    flags: int = 0,
+) -> str:
+    """
+    When `haystack` is a str, then `needle` is a regex for searching in it. If `parse` is None, and allow_mismatch is False, then
+    we return a str.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    flags: int = 0,
+) -> Optional[str]:
+    """
+    When `haystack` is a str, `parse` is None, and `allow_mismatch` is True, then we return an `Optional[str]`.
+    """
+
+@overload
+def find_one(
+    needle: re.Pattern,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+) -> str:
+    """
+    Regex needles can also be expressed as `re.Pattern` objects. Note that in that case the `flags` kwarg can't be used.
+    """
+
+@overload
+def find_one(
+    needle: re.Pattern,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+) -> Optional[str]:
+    """
+    When `haystack` is a str, `needle` is a compiled re.Pattern, `parse` is None, and `allow_mismatch` is True, then we return an
+    `Optional[str]`. Here again there are no **kwargs.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: str,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    flags: int = 0,
+) -> T:
+    """
+    When `haystack` is a str and `parse` is not None, then we return whatever type `parse` returns.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: str,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    flags: int = 0,
+) -> Optional[T]:
+    """
+    When `haystack` is a str, `parse` is not None, and `allow_mismatch` is True, then we return whatever type `parse` returns, or
+    None.
+    """
+
+@overload
+def find_one(
+    needle: re.Pattern,
+    haystack: str,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+) -> T:
+    """
+    In this case too, `needle` can be a `re.Pattern` object. Again in this case the `flags` kwarg can't be used.
+    """
+
+@overload
+def find_one(
+    needle: re.Pattern,
+    haystack: str,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+) -> Optional[T]:
+    """
+    And if `allow_mismatch` is True, then the result is optional.
+    """
+
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    **kwargs
+) -> XPathType:
+    """
+    When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query. If `parse` is None, we return an Element. See notes
+    above at the parallel annotation for `find_all`
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    **kwargs
+) -> Optional[XPathType]:
+    """
+    When `haystack` is an lxml.ET._Element, needle is an XPath/CSS query, `parse=None` and `allow_mismatch=True`, we return
+    an Optional[Element]
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[XPathType], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    **kwargs
+) -> T:
+    """
+    When `haystack` is an lxml.ET._Element and `parse` is not None, we return whatever type `parse` returns.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[XPathType], T],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    **kwargs
+) -> Optional[T]:
+    """
+    When `haystack` is an lxml.ET._Element, `parse` is not None, and `allow_mismatch=True`, we return whatever type `parse`
+    returns, or None.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    **kwargs
+) -> T:
+    """
+    When `haystack` is an lxml.ET._Element and `parse` is a callable that accepts a `str`, we return whatever type `parse` returns.
+    See notes at the parallel annotation for `find_all`
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    **kwargs
+) -> Optional[T]:
+    """
+    When `haystack` is an lxml.ET._Element, `parse` is a callable that accepts a `str`, and `allow_mismatch=True`, we return
+    whatever type `parse` returns, or None.
+    """
+
+
+@overload
+def find_one(
+    needle: Callable[[T], object],
+    haystack: Iterable[T],
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+) -> T:
+    """
+    If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None,
+    and allow_mismatch=False, we return a T.
+    """
+
+@overload
+def find_one(
+    needle: Callable[[T], object],
+    haystack: Iterable[T],
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+) -> Optional[T]:
+    """
+    If `needle` is callable, then `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None,
+    and allow_mismatch=True, we return an Optional[T].
+    """
+
+@overload
+def find_one(
+    needle: Callable[[T], object],
+    haystack: Iterable[T],
+    parse: Callable[[T], TPrime],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+) -> TPrime:
+    """
+    If `needle` is callable, `parse` is not None, and `allow_mismatch=False`, then we return whatever type `parse` returns.
+    """
+
+@overload
+def find_one(
+    needle: Callable[[T], object],
+    haystack: Iterable[T],
+    parse: Callable[[T], TPrime],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+) -> Optional[TPrime]:
+    """
+    If `needle` is callable, `parse` is not None, and `allow_mismatch=True`, then we return whatever type `parse` returns, or None.
+    """
 
 
 def find_one(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, **kwargs):

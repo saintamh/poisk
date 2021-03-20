@@ -26,12 +26,13 @@ HTML_DOC = ET.HTML(
 
 FIRST_P = find_one(
     '#one',
-    ET.HTML(
+    ET.fromstring(
         '''
         <div>
           <p id="one">This is <b>one has <b>nests</b></b></p>
           <p id="two">This is <b>two</b></p>
-        '''
+        ''',
+        parser=ET.HTMLParser(),
     )
 )
 
