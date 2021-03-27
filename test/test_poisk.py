@@ -153,6 +153,11 @@ class MyTree:
         ({'list[]': [1, 2, 3]}, '"list[]"', {}, [1, 2, 3]),
         # list index
         ({'n': [0, 1, 2]}, 'n[0]', {}, 0),
+        # type checking
+        ({'list': [1, 2, 3]}, 'list', {'type': list}, [1, 2, 3]),
+        ({'list': [1, 2, 3]}, 'list', {'type': int}, TypeError),
+        ({'list': []}, 'list', {'type': list}, []),
+        ({'list': []}, 'list[]', {'type': list}, NotFound),
 
         # xpath matching
         (HTML_DOC, 'body/p/b/text()', {}, 'forban'),

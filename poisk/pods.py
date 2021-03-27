@@ -37,30 +37,66 @@ when working in Python, as you can just as easily write those as list expression
 # standards
 from collections.abc import Mapping, Sequence
 import re
+from typing import Iterable, List, Mapping as MappingType, Type, TypeVar, Union, overload
 
 
 CHILDREN = object()
 
 
-def pods_search(needle, haystack):
+T = TypeVar('T')  # pylint: disable=invalid-name
+
+SearchablePods = Union[MappingType, list, tuple]  # NB not using `Sequence` as we don't want to include `str`
+
+
+@overload
+def pods_search(
+    needle: str,
+    haystack: SearchablePods,
+) -> List[object]:
+    ...
+
+@overload
+def pods_search(
+    needle: str,
+    haystack: SearchablePods,
+    type: Type[T],
+) -> List[T]:
+    ...
+
+
+def pods_search(
+    needle: str,
+    haystack: SearchablePods,
+    type = object,
+):
     results = []
     stack = [(haystack, list(_parse_steps(needle)))]
     while stack:
         node, steps = stack.pop()
         if not steps:
+            if not isinstance(node, type):
+                raise TypeError(f'Expected {type.__name__}, found {node.__class__.__name__}')
             results.append(node)
         else:
             head, *tail = steps
             if head is CHILDREN:
-                if isinstance(node, Sequence):
+                if isinstance(node, Sequence) and not isinstance(node, str):
                     for element in reversed(node):
                         stack.append((element, tail))
             elif (isinstance(node, Mapping) and head in node) or (isinstance(node, Sequence) and isinstance(head, int)):
-                stack.append((node[head], tail))
+                stack.append((node[head], tail))  # type: ignore  # mypy gets confused but I think it's fine
     return results
 
 
-def _parse_steps(needle):
+def _parse_steps(needle: str) -> Iterable[Union[object]]:
+    """
+    Splits the user-specified `needle` into its components. See examples of the supported format in `test_poisk.py`.
+
+    >>> list(_parse_steps("a.b.c"))
+    ["a", "b", "c"]
+    >>> list(_parse_steps("a[].b[0].c"))
+    ["a", CHILDREN, "b", 0, "c"]
+    """
     pos = 0
     re_step = re.compile(
         r'''
@@ -82,7 +118,8 @@ def _parse_steps(needle):
             raise ValueError(f"Can't parse needle at '{needle[pos:]}'")
         groups = match.groupdict()
         if groups.get('double') or groups.get('single'):
-            yield re.sub(r'\\(.)', r'\1', groups.get('double') or groups.get('single'))
+            string: str = groups.get('double') or groups.get('single')  # type: ignore[assignment]
+            yield re.sub(r'\\(.)', r'\1', string)
         elif groups.get('index'):
             yield int(groups['index'])
         elif groups.get('brackets'):

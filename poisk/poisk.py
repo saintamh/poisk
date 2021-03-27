@@ -3,7 +3,7 @@
 # standards
 from collections.abc import Mapping, Sequence
 import re
-from typing import Any, Callable, Iterable, List, Optional, TypeVar, overload
+from typing import Any, Callable, Iterable, List, Optional, Type, TypeVar, overload
 
 # 3rd parties
 from cssselect import HTMLTranslator
@@ -11,7 +11,7 @@ from typing_extensions import Literal, Protocol  # for pre-3.8 pythons
 
 # poisk
 from .exceptions import ManyFound, NotFound
-from .pods import pods_search
+from .pods import SearchablePods, pods_search
 
 
 _css_to_xpath = HTMLTranslator().css_to_xpath
@@ -138,6 +138,58 @@ def find_all(
 
 @overload
 def find_all(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    allow_mismatch: bool = False,
+) -> List[object]:
+    """
+    When `haystack` is a `SearchablePods` (i.e. a list of a dict, basically), then needle is interpreted as a PODS search
+    expression. The `type` parameter can be used to check the returned type.
+    """
+
+@overload
+def find_all(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    type: Type[T],
+    allow_mismatch: bool = False,
+) -> List[T]:
+    """
+    If you add type=T, then we return a list of T
+    """
+
+@overload
+def find_all(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[object], T],
+    *,
+    allow_mismatch: bool = False,
+) -> List[T]:
+    """
+    When `haystack` is a `SearchablePods` and `parse` is not None, we return a list of whatever type `parse` returns.
+    """
+
+@overload
+def find_all(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[T], TPrime],
+    *,
+    type: Type[T],
+    allow_mismatch: bool = False,
+) -> List[TPrime]:
+    """
+    You can again check for a specific type using the `type` kwargs
+    """
+
+
+@overload
+def find_all(
     needle: Callable[[T], object],
     haystack: Iterable[T],
     parse: None = None,
@@ -199,7 +251,7 @@ def find_all(needle, haystack, parse=None, *, allow_mismatch=False, **kwargs):
     elif callable(needle):
         results = list(filter(needle, haystack, **kwargs))
     elif isinstance(haystack, (Mapping, Sequence)):
-        results = pods_search(needle, haystack)
+        results = pods_search(needle, haystack, **kwargs)
     else:
         if haystack is None:
             raise TypeError('haystack is None') from None
@@ -412,6 +464,109 @@ def find_one(
     """
     When `haystack` is an lxml.ET._Element, `parse` is a callable that accepts a `str`, and `allow_mismatch=True`, we return
     whatever type `parse` returns, or None.
+    """
+
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+) -> object:
+    """
+    When `haystack` is a `SearchablePods` (i.e. a list of a dict, basically), then needle is interpreted as a PODS search
+    expression.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    type: Type[T],
+    allow_mismatch: Literal[False] = False,
+) -> T:
+    """
+    Same with fixed type
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+) -> Optional[object]:
+    """
+    When `haystack` is a `SearchablePods` and `allow_mismatch` is True, the result becomes optional.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: None = None,
+    *,
+    type: Type[T],
+    allow_mismatch: Literal[True],
+) -> Optional[T]:
+    """
+    Same with fixed type
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[object], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+) -> T:
+    """
+    When `haystack` is a `SearchablePods` and `parse` is not None, we return whatever type `parse` returns.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[T], TPrime],
+    *,
+    type: Type[T],
+    allow_mismatch: Literal[False] = False,
+) -> TPrime:
+    """
+    Same with type
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[object], T],
+    *,
+    allow_mismatch: Literal[True],
+) -> Optional[T]:
+    """
+    When `haystack` is a `SearchablePods`, `parse` is not None, and `allow_mismatch=True`, we return whatever type `parse` returns,
+    or None.
+    """
+
+@overload
+def find_one(
+    needle: str,
+    haystack: SearchablePods,
+    parse: Callable[[T], TPrime],
+    *,
+    type: Type[T],
+    allow_mismatch: Literal[True],
+) -> Optional[TPrime]:
+    """
+    Same with type
     """
 
 
