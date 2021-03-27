@@ -16,7 +16,7 @@ def load_fixtures():
     auto_imports = dedent('''\
         import re
         import lxml.etree
-        from poisk import find_all, find_one
+        from poisk import many, one
     ''')
     fixtures_file = Path(__file__).parent / 'test_type_checking.yaml'
     doc = yaml.safe_load(fixtures_file.read_text('UTF-8'))

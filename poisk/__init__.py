@@ -2,4 +2,6 @@
 
 from .exceptions import PoiskException, ManyFound, NotFound
 from .pods import pods_search
-from .poisk import find_all, find_one
+
+from . import many
+from . import one

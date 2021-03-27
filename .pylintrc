@@ -60,3 +60,9 @@ variable-rgx=[a-z_][a-z0-9_]*$
 
 # pylint gets confused about the members of the lxml package
 ignored-modules = lxml
+
+
+[SIMILARITIES]
+
+# Some of these @overload annotations do get quite repetitive
+min-similarity-lines=8

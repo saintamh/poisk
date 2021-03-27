@@ -2,11 +2,11 @@ Poisk implements a thin veneer of convenience over familiar search functions.
 It can be used for:
 
 * regular expression searches;
-* `jq`- or JMESPath-style data structure searches;
+* `jq`- or JMESPath-style searches in lists and dicts
 * XPath queries over `ElementTree`s;
 * `filter`-style iterable filtering.
 
-It offers just two functions, `find_one` and `find_all`.
+It offers the following functions
 
 
 #### `find_one`

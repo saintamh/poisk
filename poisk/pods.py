@@ -13,8 +13,8 @@ Initially this was going to use JMESPath, but that library has a few limitations
        >>> jmespath.search("list[]", {"list": [1, 2]})
        [1, 2]
 
-   But the difference matters to us here, because a `find_one` of the list should work (you're finding the one list at that
-   path), whereas a `find_one` of the second should raise `ManyFound` (since the list has more than one element).
+   But the difference matters to us here, because a `one.pods` of the list should work (you're finding the one list at that path),
+   whereas a `one.pods` of the second should raise `ManyFound` (since the list has more than one element).
 
 <> We can't tell these apart either:
 
@@ -23,7 +23,7 @@ Initially this was going to use JMESPath, but that library has a few limitations
        >>> jmespath.search("myvalue", {})
        None
 
-   But again the difference matters to us. `find_one` should return `None` in the first case, but raise `NotFound` in the second.
+   But again the difference matters to us. `one.pods` should return `None` in the first case, but raise `NotFound` in the second.
 
 So we hack our own, and it does the job.
 
@@ -67,14 +67,14 @@ def pods_search(
 def pods_search(
     needle: str,
     haystack: SearchablePods,
-    type = object,
+    type = None,
 ):
     results = []
     stack = [(haystack, list(_parse_steps(needle)))]
     while stack:
         node, steps = stack.pop()
         if not steps:
-            if not isinstance(node, type):
+            if type is not None and not isinstance(node, type):
                 raise TypeError(f'Expected {type.__name__}, found {node.__class__.__name__}')
             results.append(node)
         else:
