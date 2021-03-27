@@ -433,18 +433,6 @@ def filter(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=Fal
 
 
 def _one(needle: object, haystack: object, results: List[T], allow_many: bool):
-    """
-    Finds and returns the only match of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
-    default), a `NotFound` exception is raised; if `allow_mismatch` is True, `None` is returned. If more than one match is found
-    and `allow_many` is `False` (the default), a `ManyFound` exception is raised; if `allow_many` is True, the first match is
-    returned.
-
-    In other words this function ensures that exactly one value exists that matches the given selector, unless `allow_mismatch` or
-    `allow_many` is set to `True`. It only ever returns one value.
-
-    `parse`, if specified, is a callable that will be applied to the return value. If will not be applied to the `None` value that
-    is returned if no match is found and allow_mismatch is True.
-    """
     if not results:
         return None  # allow_mismatch must have been True
     if len(results) > 1 and not allow_many:

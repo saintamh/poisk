@@ -250,27 +250,6 @@ def filter(needle, haystack, parse=None, allow_mismatch=False):
 
 
 def _many(needle, haystack, results, parse=None, allow_mismatch=False):
-    """
-    Finds and returns all matches of `needle` within `haystack`. If no match is found and `allow_mismatch` is `False` (the
-    default), a `NotFound` exception is raised. In other words an empty list is never returned, unless `allow_mismatch` is set to
-    `True`.
-
-    Behaviour and remaining `**kwargs` depend on the type of `haystack`:
-
-    If `haystack` is a string, `needle` is a regular expression, either as a string or as a compiled regex object. The returned
-    list will be the same as returned by `re.findall`: if the regex has capturing groups, we'll return a list of tuples containing
-    the captured groups of all matches, and if the regex has no groups, we'll return a list of the matching strings. The `**kwargs`
-    are passed to `re.findall`, and so the only allowed key is `flags`.
-
-    If `haystack` is an ElementTree object, `needle` is an XPath or CSS selector, and the returned list will contain the
-    subelements matched by the selector.
-
-    If `needle` is a function, it will be called in turn with each element of `haystack`, and the returned list will contain only
-    those elements for which the function returned a truthy value. This is done by calling `filter`, which accepts no kwargs, and
-    so in this case no `**kwargs` may be provided.
-
-    `parse`, if specified, is a callable that will be applied to every return, map-style.
-    """
     if not results and not allow_mismatch:
         raise NotFound(needle, haystack)
     if parse is not None:
