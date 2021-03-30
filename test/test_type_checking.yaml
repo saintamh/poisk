@@ -184,6 +184,13 @@ test_cases:
     code: |-
       many.pods(1, {'x': [1, 2]}, unknown_kwarg='blah')
 
+  - name: many.pods accepts the output of json.loads
+    expected_error: null
+    code: |-
+      import json
+      numbers = many.pods('x[]', json.loads('{"x": [1, 2]}'), type=int)
+      [abs(i) for i in numbers]
+
 
   ### many.filter
 
@@ -443,6 +450,13 @@ test_cases:
     expected_error: No overload variant of "pods" matches argument types
     code: |-
       one.pods(1, {'x': [1, 2]}, unknown_kwarg='blah')
+
+  - name: one.pods accepts the output of json.loads
+    expected_error: null
+    code: |-
+      import json
+      number = one.pods('x', json.loads('{"x": 1}'), type=int)
+      print(abs(number))
 
 
   ### one.filter
