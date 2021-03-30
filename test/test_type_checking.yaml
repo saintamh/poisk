@@ -85,13 +85,7 @@ test_cases:
     code: |-
       numbers = many.re(re.compile(r'\d+'), '1 2 3', parse=abs)
 
-  - name: compiled many.re doesn't accept `flags` kwarg
-    # because the call would fail anyway
-    expected_error: No overload variant of "re" matches argument types
-    code: |-
-      words = many.re(re.compile(r'[a-z]+'), 'The quick brown fox', flags=re.I)
-
-  - name: many.re doesn't accept unknown kwargs either
+  - name: many.re doesn't accept unknown kwargs
     expected_error: No overload variant of "re" matches argument types
     code: |-
       words = many.re(re.compile(r'[a-z]+'), 'The quick brown fox', unknown_kwarg=re.I)
@@ -348,13 +342,7 @@ test_cases:
     code: |-
       one.re(re.compile(r'\d+'), 'abcd 123', parse=abs)
 
-  - name: compiled one.re doesn't accept `flags` kwarg
-    # because the call would fail anyway
-    expected_error: No overload variant of "re" matches argument types
-    code: |-
-      one.re(re.compile(r'[a-z]+'), 'Hello!', flags=re.I)
-
-  - name: one.re doesn't accept unknown kwargs either
+  - name: one.re doesn't accept unknown kwargs
     expected_error: No overload variant of "re" matches argument types
     code: |-
       one.re(re.compile(r'[a-z]+'), 'Hello!', unknown_kwarg=re.I)

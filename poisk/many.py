@@ -10,7 +10,7 @@ from cssselect import HTMLTranslator
 # poisk
 from .exceptions import NotFound
 from .pods import SearchablePods, pods_search
-from .types import XPathType
+from .types import RegexType, XPathType
 
 
 _css_to_xpath = HTMLTranslator().css_to_xpath
@@ -28,7 +28,7 @@ TPrime = TypeVar('TPrime')
 
 @overload
 def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: None = None,
     *,
@@ -41,19 +41,7 @@ def re(
 
 @overload
 def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: None = None,
-    *,
-    allow_mismatch: bool = False,
-) -> List[str]:
-    """
-    Regex needles can also be expressed as `re.Pattern` objects. Note that in that case the `flags` kwarg can't be used.
-    """
-
-@overload
-def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: Callable[[str], T],
     *,
@@ -62,18 +50,6 @@ def re(
 ) -> List[T]:
     """
     When `parse` is not None, then we return a list of whatever type `parse` returns.
-    """
-
-@overload
-def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: Callable[[str], T],
-    *,
-    allow_mismatch: bool = False,
-) -> List[T]:
-    """
-    In this case too, `needle` can be a `re.Pattern` object. Again in this case the `flags` kwarg can't be used.
     """
 
 def re(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):

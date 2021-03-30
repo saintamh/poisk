@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # standards
-import re as _re
 from typing import Callable, Iterable, List, Optional, Type, TypeVar, overload
 
 # 3rd parties
@@ -11,7 +10,7 @@ from typing_extensions import Literal  # for pre-3.8 pythons
 from . import many
 from .exceptions import ManyFound
 from .pods import SearchablePods
-from .types import XPathType
+from .types import RegexType, XPathType
 
 
 T = TypeVar('T')  # pylint: disable=invalid-name
@@ -21,7 +20,7 @@ TPrime = TypeVar('TPrime')
 
 @overload
 def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: None = None,
     *,
@@ -36,7 +35,7 @@ def re(
 
 @overload
 def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: None = None,
     *,
@@ -50,34 +49,7 @@ def re(
 
 @overload
 def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: None = None,
-    *,
-    allow_mismatch: Literal[False] = False,
-    allow_many: bool = False,
-) -> str:
-    """
-    Regex needles can also be expressed as `re.Pattern` objects. Note that in that case the `flags` kwarg can't be used.
-    """
-
-@overload
-def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: None = None,
-    *,
-    allow_mismatch: Literal[True],
-    allow_many: bool = False,
-) -> Optional[str]:
-    """
-    When `needle` is a compiled re.Pattern, `parse` is None, and `allow_mismatch` is True, then we return an `Optional[str]`. Here
-    again there are no **kwargs.
-    """
-
-@overload
-def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: Callable[[str], T],
     *,
@@ -91,7 +63,7 @@ def re(
 
 @overload
 def re(
-    needle: str,
+    needle: RegexType,
     haystack: str,
     parse: Callable[[str], T],
     *,
@@ -101,32 +73,6 @@ def re(
 ) -> Optional[T]:
     """
     When `parse` is not None, and `allow_mismatch` is True, then we return whatever type `parse` returns, or None.
-    """
-
-@overload
-def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: Callable[[str], T],
-    *,
-    allow_mismatch: Literal[False] = False,
-    allow_many: bool = False,
-) -> T:
-    """
-    In this case too, `needle` can be a `re.Pattern` object. Again in this case the `flags` kwarg can't be used.
-    """
-
-@overload
-def re(
-    needle: _re.Pattern,
-    haystack: str,
-    parse: Callable[[str], T],
-    *,
-    allow_mismatch: Literal[True],
-    allow_many: bool = False,
-) -> Optional[T]:
-    """
-    And if `allow_mismatch` is True, then the result is optional.
     """
 
 def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, flags=0):

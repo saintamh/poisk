@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 # standards
-from typing import Any, Callable, TypeVar
+import re
+from typing import Any, Callable, TypeVar, Union
 
 # 3rd parties
 from typing_extensions import Protocol  # for pre-3.8 pythons
@@ -18,3 +19,6 @@ class HasXPathMethod(Protocol):
 
 
 XPathType = TypeVar('XPathType', bound=HasXPathMethod)
+
+
+RegexType = Union[str, re.Pattern]
