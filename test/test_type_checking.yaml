@@ -145,6 +145,46 @@ test_cases:
       many.etree('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
 
 
+  ### many.pods
+
+  - name: many.pods has a `type` that defines the return type
+    expected_error: null
+    code: |-
+      numbers = many.pods('x[]', {'x': [1, 2]}, type=int)
+      i: int = abs(numbers[0])
+
+  - name: many.pods requires string needle
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      many.pods(1, {'x': [1, 2]})
+
+  - name: many.pods requires non-null needle
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      many.pods(None, {'x': [1, 2]})
+
+  - name: many.pods can take a `parse` that maps from object
+    expected_error: null
+    code: |-
+      strings = many.pods('x[]', {'x': [1, 2]}, str)
+      [s.strip() for s in strings]
+
+  - name: many.pods `parse` must accept the `type`
+    expected_error: incompatible type "Callable[[int], str]"; expected "Callable[[float], str]"
+    code: |-
+      numbers = many.pods('x[]', {'x': [97.0, 98.9]}, type=float, parse=chr)
+
+  - name: many.pods `parse` works if it accepts the given `type`
+    expected_error: null
+    code: |-
+      numbers = many.pods('x[]', {'x': [97, 98]}, type=int, parse=chr)
+
+  - name: many.pods accepts no kwarg
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      many.pods(1, {'x': [1, 2]}, unknown_kwarg='blah')
+
+
   ### many.filter
 
   - name: many.filter happy path
@@ -364,6 +404,45 @@ test_cases:
     expected_error: Argument "parse" to "etree" has incompatible type
     code: |-
       one.etree('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
+
+
+  ### one.pods
+
+  - name: one.pods has a `type` that defines the return type
+    expected_error: null
+    code: |-
+      number = one.pods('x[]', {'x': [1]}, type=int)
+      i: int = abs(number)
+
+  - name: one.pods requires string needle
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      one.pods(1, {'x': [1, 2]})
+
+  - name: one.pods requires non-null needle
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      one.pods(None, {'x': [1, 2]})
+
+  - name: one.pods can take a `parse` that maps from object
+    expected_error: null
+    code: |-
+      one.pods('x', {'x': [1]}, str).strip()
+
+  - name: one.pods `parse` must accept the `type`
+    expected_error: incompatible type "Callable[[int], str]"; expected "Callable[[float], str]"
+    code: |-
+      number = one.pods('x[]', {'x': [97.0]}, type=float, parse=chr)
+
+  - name: one.pods `parse` works if it accepts the given `type`
+    expected_error: null
+    code: |-
+      number = one.pods('x[]', {'x': [97]}, type=int, parse=chr)
+
+  - name: one.pods accepts no kwarg
+    expected_error: No overload variant of "pods" matches argument types
+    code: |-
+      one.pods(1, {'x': [1, 2]}, unknown_kwarg='blah')
 
 
   ### one.filter
