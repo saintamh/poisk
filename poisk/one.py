@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 # standards
-from typing import Callable, Iterable, List, Optional, Type, TypeVar, overload
+from typing import Callable, Iterable, List, Optional, Tuple, Type, TypeVar, overload
 
 # 3rd parties
 from typing_extensions import Literal  # for pre-3.8 pythons
 
 # poisk
 from . import many
-from .exceptions import ManyFound
+from .exceptions import ManyFound, NotFound
 from .pods import SearchablePods
 from .types import RegexType, XPathType
 
@@ -88,6 +88,60 @@ def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, 
         ),
         allow_many,
     )
+
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    flags: int = 0,
+) -> Tuple[str, ...]:
+    ...
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    flags: int = 0,
+) -> Optional[Tuple[str, ...]]:
+    ...
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: Callable[[Tuple[str, ...]], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+    allow_many: bool = False,
+    flags: int = 0,
+) -> T:
+    ...
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: Callable[[Tuple[str, ...]], T],
+    *,
+    allow_mismatch: Literal[True],
+    allow_many: bool = False,
+    flags: int = 0,
+) -> Optional[T]:
+    ...
+
+def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, flags=0):
+    return re(needle, haystack, parse, allow_mismatch=allow_mismatch, allow_many=allow_many, flags=flags)
+
+re_groups = re  # type: ignore
 
 
 @overload
@@ -188,6 +242,59 @@ def etree(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=Fals
         ),
         allow_many,
     )
+
+
+@overload
+def attrib(
+    needle: str,
+    haystack: XPathType,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[False] = False,
+) -> str:
+    ...
+
+@overload
+def attrib(
+    needle: str,
+    haystack: XPathType,
+    parse: None = None,
+    *,
+    allow_mismatch: Literal[True],
+) -> Optional[str]:
+    ...
+
+@overload
+def attrib(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[False] = False,
+) -> T:
+    ...
+
+@overload
+def attrib(
+    needle: str,
+    haystack: XPathType,
+    parse: Callable[[str], T],
+    *,
+    allow_mismatch: Literal[True],
+) -> Optional[T]:
+    ...
+
+def attrib(needle, haystack, parse=None, *, allow_mismatch=False):
+    try:
+        value = haystack.attrib[needle]
+    except KeyError as error:
+        if allow_mismatch:
+            return None
+        else:
+            raise NotFound(needle, haystack) from error
+    if parse:
+        return parse(value)
+    return value
 
 
 @overload

@@ -2,7 +2,7 @@
 
 # standards
 import re as _re
-from typing import Callable, Iterable, List, Type, TypeVar, overload
+from typing import Callable, Iterable, List, Tuple, Type, TypeVar, overload
 
 # 3rd parties
 from cssselect import HTMLTranslator
@@ -23,7 +23,6 @@ _filter = filter
 T = TypeVar('T')  # pylint: disable=invalid-name
 
 TPrime = TypeVar('TPrime')
-
 
 
 @overload
@@ -61,6 +60,33 @@ def re(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):
         parse,
         allow_mismatch=allow_mismatch,
     )
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: None = None,
+    *,
+    allow_mismatch: bool = False,
+    flags: int = 0,
+) -> List[Tuple[str, ...]]:
+    ...
+
+@overload
+def re_groups(
+    needle: RegexType,
+    haystack: str,
+    parse: Callable[[Tuple[str, ...]], T],
+    *,
+    allow_mismatch: bool = False,
+    flags: int = 0,
+) -> List[T]:
+    ...
+
+def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):
+    return re(needle, haystack, parse, allow_mismatch=allow_mismatch, flags=flags)
+
+re_groups = re  # type: ignore
 
 
 @overload

@@ -401,6 +401,39 @@ test_cases:
       one.etree('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=abs)
 
 
+  ### one.attrib
+
+  - name: one.attrib happy path
+    expected_error: null
+    code: |-
+      one.attrib('id', lxml.etree.fromstring('<h1 id="one">Title!</h1>')).strip()
+
+  - name: one.attrib returns a string
+    expected_error: '"str" has no attribute "not_a_known_str_attribute"'
+    code: |-
+      one.attrib('id', lxml.etree.fromstring('<h1 id=one">Title!</h1>')).not_a_known_str_attribute
+
+  - name: one.attrib with allow_mismatch=True returns an Optional[str]
+    expected_error: '"Optional[str]" has no attribute "strip"'
+    code: |-
+      one.attrib('id', lxml.etree.fromstring('<h1 id="one">Title!</h1>'), allow_mismatch=True).strip()
+
+  - name: one.attrib needle must be str
+    expected_error: No overload variant of "attrib" matches argument types
+    code: |-
+      one.attrib(1, lxml.etree.fromstring('<h1 id="one">Title!</h1>'))
+
+  - name: one.attrib needle must be non-null
+    expected_error: No overload variant of "attrib" matches argument types
+    code: |-
+      one.attrib(None, lxml.etree.fromstring('<h1 id="one">Title!</h1>'))
+
+  - name: one.attrib accepts a `parse` that accepts a str as input
+    expected_error: null
+    code: |-
+      abs(one.attrib('id', lxml.etree.fromstring('<h1 id=1>Title!</h1>'), int))
+
+
   ### one.pods
 
   - name: one.pods has a `type` that defines the return type
