@@ -2,7 +2,7 @@
 
 # standards
 import re as _re
-from typing import Callable, Iterable, List, Tuple, Type, TypeVar, overload
+from typing import Any, Callable, Iterable, List, Tuple, Type, TypeVar, overload
 
 # 3rd parties
 from cssselect import HTMLTranslator
@@ -161,7 +161,7 @@ def pods(
     *,
     type: None = None,
     allow_mismatch: bool = False,
-) -> List[object]:
+) -> List[Any]:
     """
     PODS search
     """
@@ -183,7 +183,7 @@ def pods(
 def pods(
     needle: str,
     haystack: SearchablePods,
-    parse: Callable[[object], T],
+    parse: Callable[[Any], T],
     *,
     type: None = None,
     allow_mismatch: bool = False,

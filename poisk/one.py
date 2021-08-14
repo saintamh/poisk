@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # standards
-from typing import Callable, Iterable, List, Optional, Tuple, Type, TypeVar, overload
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Type, TypeVar, overload
 
 # 3rd parties
 from typing_extensions import Literal  # for pre-3.8 pythons
@@ -305,7 +305,7 @@ def pods(
     *,
     type: None = None,
     allow_mismatch: Literal[False] = False,
-) -> object:
+) -> Any:
     """
     When `parse` is None and `type` is None, we return an object.
     """
@@ -331,7 +331,7 @@ def pods(
     *,
     type: None = None,
     allow_mismatch: Literal[True],
-) -> Optional[object]:
+) -> Optional[Any]:
     """
     If `allow_mismatch` is True and `type` is None, we return an `object`, or None
     """
@@ -353,7 +353,7 @@ def pods(
 def pods(
     needle: str,
     haystack: SearchablePods,
-    parse: Callable[[object], T],
+    parse: Callable[[Any], T],
     *,
     type: None = None,
     allow_mismatch: Literal[False] = False,
@@ -379,7 +379,7 @@ def pods(
 def pods(
     needle: str,
     haystack: SearchablePods,
-    parse: Callable[[object], T],
+    parse: Callable[[Any], T],
     *,
     type: None = None,
     allow_mismatch: Literal[True],
