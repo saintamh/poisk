@@ -133,6 +133,7 @@ class MyTree:
         (one.pods, {'null': None}, 'null', {}, None),
         (one.pods, {}, 'anything', {}, NotFound),
         (one.pods, {}, 'anything', {'allow_mismatch': True}, None),
+        (one.pods, [{'number': 1926}], '[].number', {}, 1926),
         # if the needle resolves to a single list, we return the list. Empty lists are fine
         (one.pods, {'list': []}, 'list', {}, []),
         (one.pods, {'list': [1, 2, 3]}, 'list', {}, [1, 2, 3]),

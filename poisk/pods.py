@@ -104,7 +104,7 @@ def _parse_steps(needle: str) -> Iterable[Union[object]]:
           (?:
               "  (?P<double> (?:[^\\"]|\\.)+ ) "
             | '  (?P<single> (?:[^\\']|\\.)+ ) '
-            |    (?P<word> \w+ )
+            |    (?P<word> [\w\-\$]+ )
             | \[ (?P<index> \d+ ) \]
             |    (?P<brackets> \[\] )
           )
