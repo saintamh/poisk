@@ -26,6 +26,7 @@ def re(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> str:
     """
@@ -41,6 +42,7 @@ def re(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> Optional[str]:
     """
@@ -55,6 +57,7 @@ def re(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> T:
     """
@@ -69,13 +72,14 @@ def re(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> Optional[T]:
     """
     When `parse` is not None, and `allow_mismatch` is True, then we return whatever type `parse` returns, or None.
     """
 
-def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, flags=0):
+def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, allow_duplicates=False, flags=0):
     return _one(
         needle,
         haystack,
@@ -87,6 +91,7 @@ def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, 
             flags=flags,
         ),
         allow_many,
+        allow_duplicates,
     )
 
 
@@ -98,6 +103,7 @@ def re_groups(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> Tuple[str, ...]:
     ...
@@ -110,6 +116,7 @@ def re_groups(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> Optional[Tuple[str, ...]]:
     ...
@@ -122,6 +129,7 @@ def re_groups(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> T:
     ...
@@ -134,12 +142,21 @@ def re_groups(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     flags: int = 0,
 ) -> Optional[T]:
     ...
 
-def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, flags=0):
-    return re(needle, haystack, parse, allow_mismatch=allow_mismatch, allow_many=allow_many, flags=flags)
+def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, allow_duplicates=False, allow_many=False, flags=0):
+    return re(
+        needle,
+        haystack,
+        parse,
+        allow_mismatch=allow_mismatch,
+        allow_many=allow_many,
+        allow_duplicates=allow_duplicates,
+        flags=flags,
+    )
 
 re_groups = re  # type: ignore
 
@@ -152,6 +169,7 @@ def etree(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> XPathType:
     """
@@ -166,6 +184,7 @@ def etree(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> Optional[XPathType]:
     """
@@ -180,6 +199,7 @@ def etree(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> T:
     """
@@ -194,6 +214,7 @@ def etree(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> Optional[T]:
     """
@@ -208,6 +229,7 @@ def etree(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> T:
     """
@@ -223,13 +245,23 @@ def etree(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
     **kwargs
 ) -> Optional[T]:
     """
     When `parse` is a callable that accepts a `str` and `allow_mismatch=True`, we return whatever type `parse` returns, or None.
     """
 
-def etree(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, **kwargs):
+def etree(
+    needle,
+    haystack,
+    parse=None,
+    *,
+    allow_mismatch=False,
+    allow_many=False,
+    allow_duplicates=False,
+    **kwargs,
+):
     return _one(
         needle,
         haystack,
@@ -241,6 +273,7 @@ def etree(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=Fals
             **kwargs,
         ),
         allow_many,
+        allow_duplicates,
     )
 
 
@@ -402,7 +435,16 @@ def pods(
     type `parse` returns, or None.
     """
 
-def pods(needle, haystack, parse=None, *, type=None, allow_mismatch=False, allow_many=False):
+def pods(
+    needle,
+    haystack,
+    parse=None,
+    *,
+    type=None,
+    allow_mismatch=False,
+    allow_many=False,
+    allow_duplicates=False,
+):
     return _one(
         needle,
         haystack,
@@ -414,6 +456,7 @@ def pods(needle, haystack, parse=None, *, type=None, allow_mismatch=False, allow
             allow_mismatch=allow_mismatch,
         ),
         allow_many,
+        allow_duplicates,
     )
 
 
@@ -425,6 +468,7 @@ def filter(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
 ) -> T:
     """
     `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None, and allow_mismatch=False, we
@@ -439,6 +483,7 @@ def filter(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
 ) -> Optional[T]:
     """
     `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None, and allow_mismatch=True, we
@@ -453,6 +498,7 @@ def filter(
     *,
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
+    allow_duplicates: bool = False,
 ) -> TPrime:
     """
     If `parse` is not None, and `allow_mismatch=False`, then we return whatever type `parse` returns.
@@ -466,12 +512,21 @@ def filter(
     *,
     allow_mismatch: Literal[True],
     allow_many: bool = False,
+    allow_duplicates: bool = False,
 ) -> Optional[TPrime]:
     """
     If `parse` is not None, and `allow_mismatch=True`, then we return whatever type `parse` returns, or None.
     """
 
-def filter(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False):
+def filter(
+    needle,
+    haystack,
+    parse=None,
+    *,
+    allow_mismatch=False,
+    allow_many=False,
+    allow_duplicates=False,
+):
     return _one(
         needle,
         haystack,
@@ -482,12 +537,21 @@ def filter(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=Fal
             allow_mismatch=allow_mismatch,
         ),
         allow_many,
+        allow_duplicates,
     )
 
 
-def _one(needle: object, haystack: object, results: List[T], allow_many: bool):
+def _one(needle: object, haystack: object, results: List[T], allow_many: bool, allow_duplicates: bool):
     if not results:
         return None  # allow_mismatch must have been True
+    if allow_duplicates:
+        seen = set()
+        deduplicated: List[T] = []
+        for element in results:
+            if element not in seen:
+                seen.add(element)
+                deduplicated.append(element)
+        results = deduplicated
     if len(results) > 1 and not allow_many:
         raise ManyFound(needle, haystack)
     return results[0]
