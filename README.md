@@ -2,190 +2,115 @@ Poisk implements a thin veneer of convenience over familiar search functions.
 It can be used for:
 
 * regular expression searches;
-* `jq`- or JMESPath-style searches in lists and dicts
-* XPath queries over `ElementTree`s;
-* `filter`-style iterable filtering.
-
-It offers the following functions
+* jq- or JMESPath-style searches in lists and dicts;
+* XPath queries over ElementTrees.
 
 
-#### `find_one`
+## `one` and `many`
 
-The `find_one` function performs a search, checks that there is exactly one
-match (no more, no less), and returns it.
+At the core of Poisk is the idea that you'd rather raise an exception than
+extract the wrong data. We want to check that our expectations hold. it we
+expect our search to return matches, it should not return an empty list. If we
+expect a single matching element, there shouldn't be two.
 
-So this:
+The search functions are grouped into two modules, called `one` and `many`. The
+search functions under `one` expect to find a single matching value, which they
+return. They raise `NotFound` if no results are found, and `ManyFound` if more
+than one match is found.
 
-```python
->>> find_one(r'\d+', 'Vostok 1 was the first spaceflight')
-'1'
-```
-
-is roughly equivalent to this:
+Here is an example using `one.re`, used for regular expression searches:
 
 ```python
->>> number, = re.findall(r'\d+', 'Vostok 1 was the first spaceflight')
->>> number
-'1'
-```
+>>> from poisk import one
 
-but with nicer syntax and clearer error handling.
+>>> one.re(r'H\w+', 'Hello world!')
+'Hello'
 
-If no matches are found, `NotFound` is raised, unless `allow_mismatch=True` is
-passed to the function, and if multiple matches are found, `ManyFound` is
-raised, unless `allow_many=True` is passed, in which case only the first match
-is returned.
-
-```python
->>> find_one(r'\w+', '')
+>>> one.re(r'H\w+', 'Greetings, world!')
 Traceback (most recent call last):
-  ....
-poisk.exceptions.NotFound: '\\w+'
+    ...
+poisk.exceptions.NotFound: 'H\\w+' in 'Greetings, world!'
 
->>> print(find_one(r'\w+', '', allow_mismatch=True))
-None
-
->>> find_one(r'\w+', 'The quick brown fox')
+>>> one.re(r'H\w+', 'Ho Ho Ho world!')
 Traceback (most recent call last):
-  ....
-poisk.exceptions.ManyFound: '\\w+'
-
->>> find_one(r'\w+', 'The quick brown fox', allow_many=True)
-'The'
+    ...
+poisk.exceptions.ManyFound: 'H\\w+' in 'Ho Ho Ho world!'
 ```
 
-
-#### `find_all`
-
-The `find_all` function works similarly, but returns a list of all matches.
-Unlike `find_one` it allows more than one match, but it does raise an exception
-if no matches are found.
-
-So this:
+The corresponding functions under `many` expect one or more results, which they
+return as a list. They raise `NotFound` if no matches are found:
 
 ```python
->>> find_all(r'\w+', 'over the lazy dog')
-['over', 'the', 'lazy', 'dog']
-```
+>>> from poisk import many
 
-is roughly equivalent to this:
+>>> many.re(r'\w+', 'Hello!')
+['Hello']
 
-```python
->>> values = re.findall(r'\w+', 'over the lazy dog')
->>> if not values:
-...     raise ValueError("No matches")
->>> values
-['over', 'the', 'lazy', 'dog']
-```
+>>> many.re(r'\w+', 'Hello world!')
+['Hello', 'world']
 
-If no matches are found `NotFound` is raised, unless `allow_mismatch=True` is
-passed to the function:
-
-```python
->>> find_all(r'\w+', '')
+>>> many.re(r'\d+', 'Hello world!')
 Traceback (most recent call last):
- ...
-poisk.exceptions.NotFound: '\\w+'
-
->>> find_all(r'\w+', '', allow_mismatch=True)
-[]
+    ...
+poisk.exceptions.NotFound: '\\d+' in 'Hello world!'
 ```
 
 
-#### Regex search
+## Supported search functions
 
-If `needle` is a regular expression and `haystack` is a string, Poisk performs
-a regular expression search. Like `re.findall`, if the regular expression
-pattern contains capturing groups, the returned values are tuples of those
-groups, and if not, the whole match is returned.
+The previous two examples use `one.re` and `many.re` to perform regular
+expression searches, using the standard
+[re](https://docs.python.org/3/library/re.html) module.
+
+Also available are functions for xpath search over ElementTrees using
+[lxml.etree](https://lxml.de/api/):
 
 ```python
->>> find_one(r'\d+', '10 to the dozen')
-'10'
+>>> import lxml.etree as ET
+>>> from poisk import many, one
 
->>> find_one(r'(\d+)', '10 to the dozen')
-'10'
+>>> document = ET.HTML('''
+...     <div>
+...         <p id="p1">First paragraph</p>
+...         <p id="p2">Second paragraph</p>
+...     </div>
+... ''')
 
->>> find_one(r'(\w+) to the (\w+)', '10 to the dozen')
-('10', 'dozen')
+>>> one.etree('p[@id="p1"]/text()', document)
+'First paragraph'
 
->>> find_all(r'(\w+)-(\w+)', 'Deep-fried Greek-style pork-chops')
-[('Deep', 'fried'), ('Greek', 'style'), ('pork', 'chops')]
+>>> many.etree('p/text()', document)
+['First paragraph', 'Second paragraph']
 ```
 
-
-#### XPath/CSS search
-
-If the `haystack` parameter is an ElementTree, the search functions perform
-XPath or CSS selection (using the
-[cssselect](https://cssselect.readthedocs.io/) package):
+The same `one.etree` and `many.etree` functions accept CSS selectors (via
+[cssselect](https://github.com/scrapy/cssselect)):
 
 ```python
->>> document = ET.fromstring('<ul><li id="one">One</li><li>Two</li><li>Three</li></ul>')
-
->>> find_all('li/text()', document)
-['One', 'Two', 'Three']
-
->>> one = find_one('li#one', document)
->>> ET.tostring(one, encoding=str)
-'<li id="one">One</li>'
+>>> one.etree('p#p1', document).text
+'First paragraph'
 ```
 
-
-#### PODS (Plain Old Data Structure) search
-
-If the `haystack` parameter is a `list` or a `dict`, the search is done using a
-query language similar to that of [jq](https://stedolan.github.io/jq/) or
-[JMESPath](https://jmespath.org/):
+The `one.pods` and `many.pods` functions allow searches using Plain Old Data
+Structures (dicts and lists) using a jq- or JMESPath-style query language:
 
 ```python
->>> payload = {
-...  "records": [
-...    {"id": 1, "v": 78},
-...    {"id": 2},
-...    {"id": 3, "v": 91, "z": "zed"},
-...  ],
+>>> data = {
+...     "payload": {
+...         "total": 3,
+...         "results": [
+...             {"id": 1},
+...             {"id": 2},
+...             {"id": 3},
+...         ],
+...     },
 ... }
 
->>> find_all('records[].v', payload)
-[78, 91]
-
->>> find_one('records[].z', payload)
-'zed'
-```
-
-
-#### filtering
-
-If the `needle` is a callable, then the standard `filter` function is used to
-sift through the `haystack`, which must be iterable. This is useful to ensure
-that the result has either only a single match, or is not empty.
-
-```python
->>> find_one(lambda s: s == ''.join(reversed(s)), ['abracadabra', 'kayak', 'canal'])
-'kayak'
-
->>> find_all(str.isupper, ['a', 'b', 'c'])
-Traceback (most recent call last):
- ...
-poisk.exceptions.NotFound: <method 'isupper' of 'str' objects>
-```
-
-
-#### the `parse` function
-
-Both `find_one` and `find_all` accept an optional `parse` parameter, which, if
-specified, should be a callable will be applied to returns when results are
-found. If no results are found (and if `allow_mismatch=True`), it is not
-called.
-
-```python
->>> find_one(r'\d+', '3 little piggies')
-'3'
-
->>> find_one(r'\d+', '3 little piggies', parse=int)
+>>> one.pods('payload.total', data)
 3
 
->>> print(find_one(r'\d+', 'Three little piggies', parse=int, allow_mismatch=True))
-None
+>>> many.pods('payload.results[].id', data)
+[1, 2, 3]
 ```
+
+The `test/` directory contains many more examples of the sort functionality that Poisk offers.
