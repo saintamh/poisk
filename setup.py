@@ -6,7 +6,7 @@ import setuptools
 setuptools.setup(
     name='poisk',
     description='Small utilities for searching data structures',
-    version='1.0',
+    version='1.0.0',
     author='Hervé Saint-Amand',
     package_data={'poisk': ['py.typed']},
     packages=setuptools.find_packages(),
