@@ -1,13 +1,30 @@
 #!/usr/bin/env python3
 
 # standards
+from pathlib import Path
+import re
 import setuptools
+
+
+README_FILE = Path(__file__).parent / 'README.md'
+
+LONG_DESCRIPTION = README_FILE.read_text('UTF-8')
+
+LONG_DESCRIPTION = re.sub(
+    r'(?<=\]\()(?!http)',
+    'https://github.com/saintamh/poisk/tree/master/',
+    LONG_DESCRIPTION,
+)
+
 
 setuptools.setup(
     name='poisk',
+    version='1.0.1',
     description='Small utilities for searching data structures',
-    version='1.0.0',
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     author='Hervé Saint-Amand',
+    author_email='poisk@saintamh.org',
     package_data={'poisk': ['py.typed']},
     packages=setuptools.find_packages(),
     install_requires=[
