@@ -9,7 +9,7 @@ It can be used for:
 ## `one` and `many`
 
 At the core of Poisk is the idea that you'd rather raise an exception than
-extract the wrong data. We want to check that our expectations hold. it we
+extract the wrong data. We want to check that our expectations hold. If we
 expect our search to return matches, it should not return an empty list. If we
 expect a single matching element, there shouldn't be two.
 
@@ -18,7 +18,7 @@ search functions under `one` expect to find a single matching value, which they
 return. They raise `NotFound` if no results are found, and `ManyFound` if more
 than one match is found.
 
-Here is an example using `one.re`, used for regular expression searches:
+Here is an example using `one.re`, which performs regular expression searches:
 
 ```python
 >>> from poisk import one
@@ -31,10 +31,10 @@ Traceback (most recent call last):
     ...
 poisk.exceptions.NotFound: 'H\\w+' in 'Greetings, world!'
 
->>> one.re(r'H\w+', 'Ho Ho Ho world!')
+>>> one.re(r'H\w+', 'Ho Ho Ho, world!')
 Traceback (most recent call last):
     ...
-poisk.exceptions.ManyFound: 'H\\w+' in 'Ho Ho Ho world!'
+poisk.exceptions.ManyFound: 'H\\w+' in 'Ho Ho Ho, world!'
 ```
 
 The corresponding functions under `many` expect one or more results, which they
