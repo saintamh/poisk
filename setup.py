@@ -19,7 +19,7 @@ LONG_DESCRIPTION = re.sub(
 
 setuptools.setup(
     name='poisk',
-    version='1.0.1',
+    version='1.0.2',
     description='Small utilities for searching data structures',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
