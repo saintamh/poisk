@@ -83,7 +83,10 @@ def pods_search(
                 if isinstance(node, Sequence) and not isinstance(node, str):
                     for element in reversed(node):
                         stack.append((element, tail))
-            elif (isinstance(node, Mapping) and head in node) or (isinstance(node, Sequence) and isinstance(head, int)):
+            elif (
+                (isinstance(node, Mapping) and head in node) or
+                (isinstance(node, Sequence) and isinstance(head, int) and 0 <= head < len(node))
+            ):
                 stack.append((node[head], tail))  # type: ignore  # mypy gets confused but I think it's fine
     return results
 

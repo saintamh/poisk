@@ -163,6 +163,7 @@ class MyTree:
         (one.pods, {'list[]': [1, 2, 3]}, '"list[]"', {}, [1, 2, 3]),
         # list index
         (one.pods, {'n': [0, 1, 2]}, 'n[0]', {}, 0),
+        (one.pods, {'n': [0, 1, 2]}, 'n[9]', {}, NotFound),
         # type checking
         (one.pods, {'list': [1, 2, 3]}, 'list', {'type': list}, [1, 2, 3]),
         (one.pods, {'list': [1, 2, 3]}, 'list', {'type': int}, TypeError),
@@ -312,6 +313,8 @@ def test_find_one(find, haystack, needle, options, expected):
         (many.pods, {'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].v', {}, [1]),
         (many.pods, {'list_of_obj': [{'v': 1}, {'other': 2}]}, 'list_of_obj[].k', {}, NotFound),
         (many.pods, {'v': [[0,1], [2,3], [4,5]]}, 'v[][0]', {}, [0, 2, 4]),
+        (many.pods, {'n': [[], [0], [1, 2], [3, 4, 5]]}, 'n[][1]', {}, [2, 4]),
+        (many.pods, {'n': [[], [0], [1, 2], [3, 4, 5]]}, 'n[][9]', {}, NotFound),
 
         # arbitrary list filtering
         (many.filter, list(range(10)), lambda i: i % 3 == 0, {}, [0, 3, 6, 9]),
