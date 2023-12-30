@@ -14,7 +14,7 @@ class PoiskException(ValueError):
         if isinstance(haystack, (str, list, tuple, set, dict)):
             haystack_repr = repr(haystack)
             if len(haystack_repr) > 100:
-                haystack_repr = haystack_repr[:50] + '…' + haystack_repr[50:-1]
+                haystack_repr = haystack_repr[:50] + '…' + haystack_repr[-50:]
             message += ' in ' + haystack_repr
         return message
 
