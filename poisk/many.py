@@ -86,7 +86,7 @@ def re_groups(
 def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):
     return re(needle, haystack, parse, allow_mismatch=allow_mismatch, flags=flags)
 
-re_groups = re  # type: ignore
+re_groups = re  # type: ignore  # noqa
 
 
 @overload

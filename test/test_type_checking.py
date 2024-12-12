@@ -38,16 +38,16 @@ def load_fixtures():
 def test_type_checking(code_str, expected_error):
     """ Check that mypy can recognise correct invocations of poisk. """
     options = Options()
-    options.show_error_codes = True
     options.ignore_missing_imports = True
     all_errors = []
     build(
         [BuildSource(None, None, code_str)],
         options,
-        flush_errors=lambda errors, *rest, **kwargs: all_errors.extend(errors),
+        flush_errors=lambda file, errors, *rest, **kwargs: all_errors.extend(errors),
     )
     if expected_error is None:
         if all_errors:
-            pytest.fail('\n'.join(all_errors))
+            print(code_str)
+            pytest.fail(''.join(all_errors))
     else:
-        assert expected_error in '\n'.join(all_errors)
+        assert expected_error in ''.join(all_errors)

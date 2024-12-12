@@ -260,7 +260,7 @@ test_cases:
       one.re(r'\w+', 'Hello!').not_a_known_str_attribute
 
   - name: one.re with allow_mismatch=True returns an Optional[str]
-    expected_error: Item "None" of "Optional[str]" has no attribute "strip"
+    expected_error: Item "None" of "str | None" has no attribute "strip"
     code: |-
       one.re(r'\w+', 'Hello!', allow_mismatch=True).strip()
 
@@ -285,7 +285,7 @@ test_cases:
       one.re(r'\d+', 'abcd 123', parse=int).not_a_known_int_attribute
 
   - name: one.re with `parse=int` and `allow_mismatch=True` returns an Optional[int]
-    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]
+    expected_error: incompatible type "SupportsAbs[int] | None"; expected "SupportsAbs[int]
     code: |-
       abs(one.re(r'\d+', 'abcd 123', parse=int, allow_mismatch=True))
 
@@ -318,7 +318,7 @@ test_cases:
       one.re(re.compile(r'\w+'), 'Hello!').not_a_known_str_attribute
 
   - name: compiled one.re with allow_mismatch=True returns an Optional[str]
-    expected_error: Item "None" of "Optional[str]" has no attribute "strip"
+    expected_error: Item "None" of "str | None" has no attribute "strip"
     code: |-
       one.re(re.compile(r'\w+'), 'Hello!', allow_mismatch=True).strip()
 
@@ -333,7 +333,7 @@ test_cases:
       one.re(re.compile(r'\d+'), 'abcd 123', parse=int).not_a_known_int_attribute
 
   - name: compiled one.re with `parse=int` and `allow_mismatch=True` returns an Optional[int]
-    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]
+    expected_error: incompatible type "SupportsAbs[int] | None"; expected "SupportsAbs[int]
     code: |-
       abs(one.re(re.compile(r'\d+'), 'abcd 123', parse=int, allow_mismatch=True))
 
@@ -361,7 +361,7 @@ test_cases:
       one.etree('/h1', lxml.etree.fromstring('<h1>Title!</h1>')).not_a_known_element_attribute
 
   - name: one.etree with allow_mismatch=True returns an Optional[Element]
-    expected_error: '"Optional[_Element]" has no attribute "text"'
+    expected_error: '"_Element | None" has no attribute "text"'
     code: |-
       one.etree('/h1', lxml.etree.fromstring('<h1>Title!</h1>'), allow_mismatch=True).text
 
@@ -381,7 +381,7 @@ test_cases:
       one.etree('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str).upper()
 
   - name: one.etree accepts a `parse` that accepts XPathResult as input, with allow_mismatch=True becomes optional
-    expected_error: '"Optional[str]" has no attribute "upper"'
+    expected_error: '"str | None" has no attribute "upper"'
     code: |-
       one.etree('h1/text()', lxml.etree.fromstring('<h1>Title!</h1>'), parse=str, allow_mismatch=True).upper()
 
@@ -391,7 +391,7 @@ test_cases:
       abs(one.etree('a/@id', lxml.etree.fromstring('<a id="5" />'), parse=int))
 
   - name: one.etree accepts an int `parse`, with allow_mismatch=True becomes optional
-    expected_error: incompatible type "Optional[SupportsAbs[int]]"; expected "SupportsAbs[int]"
+    expected_error: incompatible type "SupportsAbs[int] | None"; expected "SupportsAbs[int]"
     code: |-
       abs(one.etree('a/@id', lxml.etree.fromstring('<a id="5" />'), parse=int, allow_mismatch=True))
 
@@ -414,7 +414,7 @@ test_cases:
       one.attrib('id', lxml.etree.fromstring('<h1 id=one">Title!</h1>')).not_a_known_str_attribute
 
   - name: one.attrib with allow_mismatch=True returns an Optional[str]
-    expected_error: '"Optional[str]" has no attribute "strip"'
+    expected_error: '"str | None" has no attribute "strip"'
     code: |-
       one.attrib('id', lxml.etree.fromstring('<h1 id="one">Title!</h1>'), allow_mismatch=True).strip()
 
@@ -491,7 +491,7 @@ test_cases:
       math.log(one.filter(is_even, [1, 2, 3]))
 
   - name: one.filter with allow_mismatch=True returns an Optional
-    expected_error: incompatible type "Optional[int]"; expected "SupportsFloat"
+    expected_error: incompatible type "int | None"; expected "SupportsFloat | SupportsIndex"
     code: |-
       import math
       def is_even(number: int) -> bool:
@@ -537,7 +537,7 @@ test_cases:
       one.filter(is_even, MyIterable(), parse=as_path).glob('*')
 
   - name: one.filter wirh `parse` and allow_mismatch=True returns an Optional
-    expected_error: '"Optional[Path]" has no attribute "glob"'
+    expected_error: '"Path | None" has no attribute "glob"'
     code: |-
       from pathlib import Path
       from typing import Iterable
