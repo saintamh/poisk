@@ -13,9 +13,9 @@ from .pods import SearchablePods
 from .types import RegexType, XPathType
 
 
-T = TypeVar('T')  # pylint: disable=invalid-name
+T = TypeVar("T")  # pylint: disable=invalid-name
 
-TPrime = TypeVar('TPrime')
+TPrime = TypeVar("TPrime")
 
 
 @overload
@@ -34,6 +34,7 @@ def re(
     then we return a str.
     """
 
+
 @overload
 def re(
     needle: RegexType,
@@ -48,6 +49,7 @@ def re(
     """
     When `parse` is None and `allow_mismatch` is True, then we return an `Optional[str]`.
     """
+
 
 @overload
 def re(
@@ -64,6 +66,7 @@ def re(
     When `parse` is given, then we return whatever type `parse` returns.
     """
 
+
 @overload
 def re(
     needle: RegexType,
@@ -78,6 +81,7 @@ def re(
     """
     When `parse` is not None, and `allow_mismatch` is True, then we return whatever type `parse` returns, or None.
     """
+
 
 def re(needle, haystack, parse=None, *, allow_mismatch=False, allow_many=False, allow_duplicates=False, flags=0):
     return _one(
@@ -105,8 +109,8 @@ def re_groups(
     allow_many: bool = False,
     allow_duplicates: bool = False,
     flags: int = 0,
-) -> Tuple[str, ...]:
-    ...
+) -> Tuple[str, ...]: ...
+
 
 @overload
 def re_groups(
@@ -118,8 +122,8 @@ def re_groups(
     allow_many: bool = False,
     allow_duplicates: bool = False,
     flags: int = 0,
-) -> Optional[Tuple[str, ...]]:
-    ...
+) -> Optional[Tuple[str, ...]]: ...
+
 
 @overload
 def re_groups(
@@ -131,8 +135,8 @@ def re_groups(
     allow_many: bool = False,
     allow_duplicates: bool = False,
     flags: int = 0,
-) -> T:
-    ...
+) -> T: ...
+
 
 @overload
 def re_groups(
@@ -144,8 +148,8 @@ def re_groups(
     allow_many: bool = False,
     allow_duplicates: bool = False,
     flags: int = 0,
-) -> Optional[T]:
-    ...
+) -> Optional[T]: ...
+
 
 def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, allow_duplicates=False, allow_many=False, flags=0):
     return re(
@@ -157,6 +161,7 @@ def re_groups(needle, haystack, parse=None, *, allow_mismatch=False, allow_dupli
         allow_duplicates=allow_duplicates,
         flags=flags,
     )
+
 
 re_groups = re  # type: ignore  # noqa
 
@@ -170,11 +175,12 @@ def etree(
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> XPathType:
     """
     `needle` is an XPath/CSS query. If `parse` is None, we return an Element. See notes at `many.etree`.
     """
+
 
 @overload
 def etree(
@@ -185,11 +191,12 @@ def etree(
     allow_mismatch: Literal[True],
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> Optional[XPathType]:
     """
     When `parse=None` and `allow_mismatch=True`, we return an `Optional[Element]`
     """
+
 
 @overload
 def etree(
@@ -200,11 +207,12 @@ def etree(
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> T:
     """
     When `parse` is not None, we return whatever type `parse` returns.
     """
+
 
 @overload
 def etree(
@@ -215,11 +223,12 @@ def etree(
     allow_mismatch: Literal[True],
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> Optional[T]:
     """
     When `parse` is not None and `allow_mismatch=True`, we return whatever type `parse` returns, or None.
     """
+
 
 @overload
 def etree(
@@ -230,13 +239,14 @@ def etree(
     allow_mismatch: Literal[False] = False,
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> T:
     """
     When `parse` is a callable that accepts a `str`, we return whatever type `parse` returns. See notes at the parallel annotation
     for `many.etree`.
     """
 
+
 @overload
 def etree(
     needle: str,
@@ -246,11 +256,12 @@ def etree(
     allow_mismatch: Literal[True],
     allow_many: bool = False,
     allow_duplicates: bool = False,
-    **kwargs
+    **kwargs,
 ) -> Optional[T]:
     """
     When `parse` is a callable that accepts a `str` and `allow_mismatch=True`, we return whatever type `parse` returns, or None.
     """
+
 
 def etree(
     needle,
@@ -284,8 +295,8 @@ def attrib(
     parse: None = None,
     *,
     allow_mismatch: Literal[False] = False,
-) -> str:
-    ...
+) -> str: ...
+
 
 @overload
 def attrib(
@@ -294,8 +305,8 @@ def attrib(
     parse: None = None,
     *,
     allow_mismatch: Literal[True],
-) -> Optional[str]:
-    ...
+) -> Optional[str]: ...
+
 
 @overload
 def attrib(
@@ -304,8 +315,8 @@ def attrib(
     parse: Callable[[str], T],
     *,
     allow_mismatch: Literal[False] = False,
-) -> T:
-    ...
+) -> T: ...
+
 
 @overload
 def attrib(
@@ -314,8 +325,8 @@ def attrib(
     parse: Callable[[str], T],
     *,
     allow_mismatch: Literal[True],
-) -> Optional[T]:
-    ...
+) -> Optional[T]: ...
+
 
 def attrib(needle, haystack, parse=None, *, allow_mismatch=False):
     try:
@@ -343,6 +354,7 @@ def pods(
     When `parse` is None and `type` is None, we return an object.
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -355,6 +367,7 @@ def pods(
     """
     If `type` is specified, we return that.
     """
+
 
 @overload
 def pods(
@@ -369,6 +382,7 @@ def pods(
     If `allow_mismatch` is True and `type` is None, we return an `object`, or None
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -381,6 +395,7 @@ def pods(
     """
     If `type` is specified and `allow_mismatch=True`, we return a `type` instance, or None.
     """
+
 
 @overload
 def pods(
@@ -395,6 +410,7 @@ def pods(
     If `parse` is not None, we return whatever type `parse` returns.
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -407,6 +423,7 @@ def pods(
     """
     If `parse` is set and `type` is set, then `parse` must accept an instance of `type`, and we return whatever `parse` returns
     """
+
 
 @overload
 def pods(
@@ -421,6 +438,7 @@ def pods(
     If `parse` is set and `allow_mismatch=True`, we return whatever type `parse` returns, or None.
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -434,6 +452,7 @@ def pods(
     If `type` is set, `parse` is set and `allow_mismatch=True`, `parse` must accept an instance of `type`, and we return whatever
     type `parse` returns, or None.
     """
+
 
 def pods(
     needle,
@@ -475,6 +494,7 @@ def filter(
     return a T.
     """
 
+
 @overload
 def filter(
     needle: Callable[[T], object],
@@ -490,6 +510,7 @@ def filter(
     return a T, or None.
     """
 
+
 @overload
 def filter(
     needle: Callable[[T], object],
@@ -504,6 +525,7 @@ def filter(
     If `parse` is not None, and `allow_mismatch=False`, then we return whatever type `parse` returns.
     """
 
+
 @overload
 def filter(
     needle: Callable[[T], object],
@@ -517,6 +539,7 @@ def filter(
     """
     If `parse` is not None, and `allow_mismatch=True`, then we return whatever type `parse` returns, or None.
     """
+
 
 def filter(
     needle,

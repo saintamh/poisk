@@ -20,9 +20,9 @@ _filter = filter
 
 # type annotations used below
 
-T = TypeVar('T')  # pylint: disable=invalid-name
+T = TypeVar("T")  # pylint: disable=invalid-name
 
-TPrime = TypeVar('TPrime')
+TPrime = TypeVar("TPrime")
 
 
 @overload
@@ -38,6 +38,7 @@ def re(
     Find and return all matches of `needle` in `haystack`. If `parse` is None, then we return a list of str's.
     """
 
+
 @overload
 def re(
     needle: RegexType,
@@ -51,6 +52,7 @@ def re(
     When `parse` is not None, then we return a list of whatever type `parse` returns.
     """
 
+
 def re(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):
     results = _re.findall(needle, haystack, flags=flags)
     return _many(
@@ -61,6 +63,7 @@ def re(needle, haystack, parse=None, *, allow_mismatch=False, flags=0):
         allow_mismatch=allow_mismatch,
     )
 
+
 @overload
 def re_groups(
     needle: RegexType,
@@ -69,8 +72,8 @@ def re_groups(
     *,
     allow_mismatch: bool = False,
     flags: int = 0,
-) -> List[Tuple[str, ...]]:
-    ...
+) -> List[Tuple[str, ...]]: ...
+
 
 @overload
 def re_groups(
@@ -96,7 +99,7 @@ def etree(
     parse: None = None,
     *,
     allow_mismatch: bool = False,
-    **kwargs
+    **kwargs,
 ) -> List[XPathType]:
     """
     When `needle` is an XPath/CSS query. If `parse` is None, we return a list of Elements. Note that this means that if the xpath
@@ -114,7 +117,7 @@ def etree(
     parse: Callable[[XPathType], T],
     *,
     allow_mismatch: bool = False,
-    **kwargs
+    **kwargs,
 ) -> List[T]:
     """
     When `parse` is not None, we return a list of whatever type `parse` returns. Use this with `parse=str` if the xpath selector
@@ -128,7 +131,7 @@ def etree(
     parse: Callable[[str], T],
     *,
     allow_mismatch: bool = False,
-    **kwargs
+    **kwargs,
 ) -> List[T]:
     """
     When `parse` is a callable that accepts a `str`, we return a list of whatever type `parse` returns. Use this with e.g.
@@ -166,6 +169,7 @@ def pods(
     PODS search
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -178,6 +182,7 @@ def pods(
     """
     If you add type=T, then we return a list of T
     """
+
 
 @overload
 def pods(
@@ -192,6 +197,7 @@ def pods(
     If `parse` is not None, we return a list of whatever type `parse` returns.
     """
 
+
 @overload
 def pods(
     needle: str,
@@ -204,6 +210,7 @@ def pods(
     """
     You can again check for a specific type using the `type` kwargs. If `parse` is set, then it must accept an instance of `type`.
     """
+
 
 def pods(needle, haystack, parse=None, *, type=None, allow_mismatch=False):
     results = pods_search(needle, haystack, type=type)
@@ -228,6 +235,7 @@ def filter(
     `haystack` is a sequence of T elements, and `needle` must accept `T` values. If `parse` is None, we return T's.
     """
 
+
 @overload
 def filter(
     needle: Callable[[T], object],
@@ -239,6 +247,7 @@ def filter(
     """
     If `needle` is callable, and `parse` is not None, then we return a list of whatever type `parse` returns.
     """
+
 
 def filter(needle, haystack, parse=None, allow_mismatch=False):
     results = list(_filter(needle, haystack))

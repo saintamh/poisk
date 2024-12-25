@@ -33,7 +33,6 @@ Note that this is therefore a lot simpler and much less featured than JMESPath. 
 when working in Python, as you can just as easily write those as list expressions or function calls.
 """
 
-
 # standards
 from collections.abc import Mapping, Sequence
 import re
@@ -43,7 +42,7 @@ from typing import Iterable, List, Mapping as MappingType, Type, TypeVar, Union,
 CHILDREN = object()
 
 
-T = TypeVar('T')  # pylint: disable=invalid-name
+T = TypeVar("T")  # pylint: disable=invalid-name
 
 SearchablePods = Union[MappingType, list, tuple]  # NB not using `Sequence` as we don't want to include `str`
 
@@ -52,22 +51,21 @@ SearchablePods = Union[MappingType, list, tuple]  # NB not using `Sequence` as w
 def pods_search(
     needle: str,
     haystack: SearchablePods,
-) -> List[object]:
-    ...
+) -> List[object]: ...
+
 
 @overload
 def pods_search(
     needle: str,
     haystack: SearchablePods,
     type: Type[T],
-) -> List[T]:
-    ...
+) -> List[T]: ...
 
 
 def pods_search(
     needle: str,
     haystack: SearchablePods,
-    type = None,
+    type=None,
 ):
     results = []
     stack = [(haystack, list(_parse_steps(needle)))]
@@ -75,7 +73,7 @@ def pods_search(
         node, steps = stack.pop()
         if not steps:
             if type is not None and not isinstance(node, type):
-                raise TypeError(f'Expected {type.__name__}, found {node.__class__.__name__}')
+                raise TypeError(f"Expected {type.__name__}, found {node.__class__.__name__}")
             results.append(node)
         else:
             head, *tail = steps
@@ -83,9 +81,8 @@ def pods_search(
                 if isinstance(node, Sequence) and not isinstance(node, str):
                     for element in reversed(node):
                         stack.append((element, tail))
-            elif (
-                (isinstance(node, Mapping) and head in node) or
-                (isinstance(node, Sequence) and isinstance(head, int) and 0 <= head < len(node))
+            elif (isinstance(node, Mapping) and head in node) or (
+                isinstance(node, Sequence) and isinstance(head, int) and 0 <= head < len(node)
             ):
                 stack.append((node[head], tail))  # type: ignore  # mypy gets confused but I think it's fine
     return results
@@ -102,7 +99,7 @@ def _parse_steps(needle: str) -> Iterable[Union[object]]:
     """
     pos = 0
     re_step = re.compile(
-        r'''
+        r"""
           \s*
           (?:
               "  (?P<double> (?:[^\\"]|\\.)+ ) "
@@ -112,7 +109,7 @@ def _parse_steps(needle: str) -> Iterable[Union[object]]:
             |    (?P<brackets> \[\] )
           )
           (?: \s*\.\s* | (?=\s*\[) | $ )
-        ''',
+        """,
         flags=re.X,
     )
     while pos < len(needle):
@@ -120,13 +117,13 @@ def _parse_steps(needle: str) -> Iterable[Union[object]]:
         if not match:
             raise ValueError(f"Can't parse needle at '{needle[pos:]}'")
         groups = match.groupdict()
-        if groups.get('double') or groups.get('single'):
-            string: str = groups.get('double') or groups.get('single')  # type: ignore[assignment]
-            yield re.sub(r'\\(.)', r'\1', string)
-        elif groups.get('index'):
-            yield int(groups['index'])
-        elif groups.get('brackets'):
+        if groups.get("double") or groups.get("single"):
+            string: str = groups.get("double") or groups.get("single")  # type: ignore[assignment]
+            yield re.sub(r"\\(.)", r"\1", string)
+        elif groups.get("index"):
+            yield int(groups["index"])
+        elif groups.get("brackets"):
             yield CHILDREN
         else:
-            yield groups.get('word')
+            yield groups.get("word")
         pos = match.end()

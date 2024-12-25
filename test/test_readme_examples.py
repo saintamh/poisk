@@ -10,18 +10,18 @@ import poisk
 
 
 def test_readme_examples():
-    readme_file = Path(__file__).parent / '..' / 'README.md'
-    doctest_str = '\n\n'.join(
+    readme_file = Path(__file__).parent / ".." / "README.md"
+    doctest_str = "\n\n".join(
         re.sub(
             # We auto-insert doctest <BLANKLINE> markers into the examples. Don't want to put them in the README itself, it would
             # make the examples a bit confusing.
-            r'\n\n(?!>>>)',
-            '\n<BLANKLINE>\n',
-            block_str
+            r"\n\n(?!>>>)",
+            "\n<BLANKLINE>\n",
+            block_str,
         )
         for block_str in re.findall(
-            r'```python\s+(.+?)```',
-            readme_file.read_text('UTF-8'),
+            r"```python\s+(.+?)```",
+            readme_file.read_text("UTF-8"),
             flags=re.S,
         )
     )
@@ -33,8 +33,8 @@ def test_readme_examples():
         parser.get_doctest(
             doctest_str,
             dict(globals(), poisk=poisk, __file__=readme_file),
-            'README.md',
-            'README.md',
+            "README.md",
+            "README.md",
             0,
         ),
     )

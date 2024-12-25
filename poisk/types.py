@@ -9,7 +9,6 @@ from typing_extensions import Protocol  # for pre-3.8 pythons
 
 
 class HasXPathMethod(Protocol):
-
     @property
     def xpath(self) -> Callable[..., Any]:
         # This declaration here is not actually for a property, it's for a method called `xpath`, whose signature we don't care
@@ -18,7 +17,7 @@ class HasXPathMethod(Protocol):
         ...
 
 
-XPathType = TypeVar('XPathType', bound=HasXPathMethod)
+XPathType = TypeVar("XPathType", bound=HasXPathMethod)
 
 
 RegexType = Union[str, re.Pattern]
